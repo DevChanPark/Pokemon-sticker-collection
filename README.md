@@ -15,7 +15,8 @@ npm run dev
 
 1. `main` 브랜치에 push
 2. GitHub Actions가 `npm ci`와 `npm run build` 실행
-3. 빌드 결과물 `dist`를 GitHub Pages에 배포
+3. 빌드 결과물 `dist`를 `gh-pages` 브랜치에 배포
+4. GitHub Pages가 `gh-pages` 브랜치의 `/` 경로를 공개
 
 배포 주소:
 
