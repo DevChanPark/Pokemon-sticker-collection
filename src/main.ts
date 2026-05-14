@@ -120,6 +120,7 @@ function createStickerCard(sticker: Sticker): string {
   const owned = isOwned(sticker.order);
   const ownedClass = owned ? " is-owned" : "";
   const checked = owned ? "checked" : "";
+  const ownedLabel = owned ? "보관 중" : "보관 여부";
 
   return `
     <article class="sticker-card${ownedClass}">
@@ -140,7 +141,7 @@ function createStickerCard(sticker: Sticker): string {
 
         <label class="owned-toggle">
           <input type="checkbox" data-order="${sticker.order}" ${checked} />
-          <span>보관 여부</span>
+          <span>${ownedLabel}</span>
         </label>
       </div>
     </article>
