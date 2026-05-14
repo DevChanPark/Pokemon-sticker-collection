@@ -1,0 +1,24 @@
+(function(){const r=document.createElement("link").relList;if(r&&r.supports&&r.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))c(n);new MutationObserver(n=>{for(const s of n)if(s.type==="childList")for(const l of s.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&c(l)}).observe(document,{childList:!0,subtree:!0});function o(n){const s={};return n.integrity&&(s.integrity=n.integrity),n.referrerPolicy&&(s.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?s.credentials="include":n.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function c(n){if(n.ep)return;n.ep=!0;const s=o(n);fetch(n.href,s)}})();const y=t=>`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${t}.png`,e=(t,r,o)=>({order:t,dexNo:r,name:o,imageUrl:y(r)}),u=[e(1,1,"이상해씨"),e(2,2,"이상해풀"),e(3,3,"이상해꽃"),e(4,4,"파이리"),e(5,5,"리자드"),e(6,6,"리자몽"),e(7,7,"꼬부기"),e(8,8,"어니부기"),e(9,9,"거북왕"),e(10,10,"캐터피"),e(11,11,"단데기"),e(12,12,"버터플"),e(13,13,"뿔충이"),e(14,14,"딱충이"),e(15,15,"독침붕"),e(16,16,"구구"),e(17,17,"피죤"),e(18,18,"피죤투"),e(19,19,"꼬렛"),e(20,20,"레트라"),e(21,23,"아보"),e(22,24,"아보크"),e(23,25,"피카츄"),e(24,26,"라이츄"),e(25,37,"식스테일"),e(26,38,"나인테일"),e(27,39,"푸린"),e(28,40,"푸크린"),e(29,41,"주뱃"),e(30,42,"골뱃"),e(31,52,"나옹"),e(32,53,"페르시온"),e(33,54,"고라파덕"),e(34,55,"골덕"),e(35,56,"망키"),e(36,57,"성원숭"),e(37,58,"가디"),e(38,59,"윈디"),e(39,63,"캐이시"),e(40,64,"윤겔라"),e(41,65,"후딘"),e(42,66,"알통몬"),e(43,67,"근육몬"),e(44,68,"괴력몬"),e(45,69,"모다피"),e(46,70,"우츠동"),e(47,71,"우츠보트"),e(48,74,"꼬마돌"),e(49,75,"데구리"),e(50,76,"딱구리"),e(51,77,"포니타"),e(52,78,"날쌩마"),e(53,79,"야돈"),e(54,80,"야도란"),e(55,81,"코일"),e(56,82,"레어코일"),e(57,83,"파오리"),e(58,84,"두두"),e(59,85,"두트리오"),e(60,88,"질퍽이"),e(61,89,"질뻐기"),e(62,92,"고오스"),e(63,93,"고우스트"),e(64,94,"팬텀"),e(65,95,"롱스톤"),e(66,100,"찌리리공"),e(67,101,"붐볼"),e(68,104,"탕구리"),e(69,105,"텅구리"),e(70,109,"또가스"),e(71,110,"또도가스"),e(72,111,"뿔카노"),e(73,112,"코뿌리"),e(74,113,"럭키"),e(75,114,"덩쿠리"),e(76,120,"별가사리"),e(77,121,"아쿠스타"),e(78,123,"스라크"),e(79,125,"에레브"),e(80,126,"마그마"),e(81,127,"쁘사이저"),e(82,128,"켄타로스"),e(83,129,"잉어킹"),e(84,130,"갸라도스"),e(85,131,"라프라스"),e(86,132,"메타몽"),e(87,133,"이브이"),e(88,134,"샤미드"),e(89,135,"쥬피썬더"),e(90,136,"부스터"),e(91,137,"폴리곤"),e(92,142,"프테라"),e(93,143,"잠만보"),e(94,144,"프리져"),e(95,145,"썬더"),e(96,146,"파이어"),e(97,147,"미뇽"),e(98,148,"신뇽"),e(99,149,"망나뇽"),e(100,150,"뮤츠")],g="since-1996-pokemon-sticker-collection",i={ownedByOrder:C(),searchTerm:"",filterMode:"all"},p=d("#collection-grid"),m=d("#search-input"),S=d("#owned-count"),O=d("#progress-bar"),v=d("#clear-button"),h=document.querySelectorAll("[data-filter]");a();m.addEventListener("input",()=>{i.searchTerm=m.value,a()});h.forEach(t=>{t.addEventListener("click",()=>{const r=t.dataset.filter;B(r)&&(i.filterMode=r,a())})});v.addEventListener("click",()=>{i.ownedByOrder={},w(i.ownedByOrder),a()});p.addEventListener("change",t=>{const r=t.target;if(!(r instanceof HTMLInputElement))return;const o=r.dataset.order;if(!o)return;const c=Number(o);i.ownedByOrder[c]=r.checked,w(i.ownedByOrder),a()});function a(){E(),L(),b($())}function E(){const t=u.filter(o=>f(o.order)).length,r=Math.round(t/u.length*100);S.textContent=String(t),O.style.width=`${r}%`}function L(){h.forEach(t=>{const r=t.dataset.filter===i.filterMode;t.classList.toggle("is-active",r),t.setAttribute("aria-pressed",String(r))})}function b(t){p.innerHTML=t.map(M).join("")}function M(t){const r=f(t.order),o=r?" is-owned":"",c=r?"checked":"";return`
+    <article class="sticker-card${o}">
+      <div class="sticker-card__image-wrap">
+        <img
+          class="sticker-card__image"
+          src="${t.imageUrl}"
+          alt="${t.name} 띠부씰 이미지"
+          loading="lazy"
+        />
+      </div>
+
+      <div class="sticker-card__body">
+        <div>
+          <span class="sticker-card__meta">#${k(t.order)} · 도감 ${t.dexNo}</span>
+          <h2>${t.name}</h2>
+        </div>
+
+        <label class="owned-toggle">
+          <input type="checkbox" data-order="${t.order}" ${c} />
+          <span>보관 여부</span>
+        </label>
+      </div>
+    </article>
+  `}function $(){const t=i.searchTerm.trim().toLowerCase();return u.filter(r=>{const o=f(r.order),c=r.name.toLowerCase().includes(t)||String(r.order).includes(t)||String(r.dexNo).includes(t),n=i.filterMode==="all"||i.filterMode==="owned"&&o||i.filterMode==="missing"&&!o;return c&&n})}function f(t){return i.ownedByOrder[t]===!0}function k(t){return String(t).padStart(2,"0")}function B(t){return t==="all"||t==="owned"||t==="missing"}function C(){const t=window.localStorage.getItem(g);if(!t)return{};try{return JSON.parse(t)}catch{return{}}}function w(t){window.localStorage.setItem(g,JSON.stringify(t))}function d(t){const r=document.querySelector(t);if(!r)throw new Error(`필수 화면 요소를 찾지 못했습니다: ${t}`);return r}
