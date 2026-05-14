@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Since 1996 포켓몬 띠부씰 컬렉션</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Since 1996</p>
+          <h1>포켓몬 띠부씰 컬렉션</h1>
+        </div>
+
+        <section class="stats" aria-label="수집 현황">
+          <div>
+            <span class="stats__label">보관</span>
+            <strong id="owned-count">0</strong>
+            <span class="stats__total">/ 100</span>
+          </div>
+          <div class="progress" aria-hidden="true">
+            <span id="progress-bar"></span>
+          </div>
+        </section>
+      </header>
+
+      <section class="toolbar" aria-label="검색과 필터">
+        <label class="search">
+          <span>검색</span>
+          <input id="search-input" type="search" placeholder="이름, 도감 번호, 순번" autocomplete="off" />
+        </label>
+
+        <div class="segments" role="group" aria-label="보관 상태 필터">
+          <button type="button" class="segment is-active" data-filter="all">전체</button>
+          <button type="button" class="segment" data-filter="owned">보관</button>
+          <button type="button" class="segment" data-filter="missing">미보관</button>
+        </div>
+
+        <button type="button" class="ghost-button" id="clear-button">초기화</button>
+      </section>
+
+      <section class="collection-grid" id="collection-grid" aria-label="띠부씰 목록"></section>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
