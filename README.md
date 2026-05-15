@@ -21,7 +21,7 @@ npm run dev
 배포 주소:
 
 ```text
-https://louisycp.github.io/Pok-mon-sticker-collection/
+https://devchanpark.github.io/Pokemon-sticker-collection/
 ```
 
 ## 현재 기능
