@@ -21,12 +21,12 @@
             <span>보관</span>
             <input type="checkbox" data-order="${e.order}" data-status="owned" ${a} />
           </label>
-          ${$(e,"duplicateCount","중복",n.duplicateCount)}
-          ${$(e,"damagedCount","하자",n.damagedCount)}
+          ${S(e,"duplicateCount","중복",n.duplicateCount)}
+          ${S(e,"damagedCount","하자",n.damagedCount)}
         </div>
       </div>
     </article>
-  `}function $(e,n,o,s){const r=s===0?"disabled":"";return`
+  `}function S(e,n,o,s){const r=s===0?"disabled":"";return`
     <div class="count-row count-row--${n}">
       <div class="count-row__label">
         <span>${o}</span>
@@ -42,7 +42,6 @@
           aria-label="${e.name} ${o} 1개 줄이기"
           ${r}
         >-</button>
-        <output aria-label="${e.name} ${o} 개수">${s}</output>
         <button
           type="button"
           data-order="${e.order}"
@@ -56,4 +55,4 @@
     <div class="sticker-card__badges" aria-label="표시된 상태">
       ${n.map(o=>`<span class="${o.className}">${o.label}</span>`).join("")}
     </div>
-  `}function U(){const e=d.searchTerm.trim().toLowerCase();return f.filter(n=>{const o=i(n.order),s=n.name.toLowerCase().includes(e)||String(n.order).includes(e)||String(n.dexNo).includes(e),r=d.filterMode==="all"||d.filterMode==="owned"&&o.owned||d.filterMode==="missing"&&!o.owned||d.filterMode==="duplicate"&&o.duplicateCount>0||d.filterMode==="damaged"&&o.damagedCount>0;return s&&r})}function j(e){return i(e).owned}function i(e){return d.statusByOrder[e]??q()}function v(e,n){const o={owned:n.owned||n.duplicateCount>0||n.damagedCount>0,duplicateCount:g(n.duplicateCount),damagedCount:g(n.damagedCount)};if(!o.owned){delete d.statusByOrder[e];return}d.statusByOrder[e]=o}function q(){return{owned:!1,duplicateCount:0,damagedCount:0}}function C(e){return`${e}개`}function g(e){return Number.isFinite(e)?Math.min(Math.max(Math.trunc(e),0),M):0}function V(e){return String(e).padStart(2,"0")}function z(e){return e==="all"||e==="owned"||e==="missing"||e==="duplicate"||e==="damaged"}function H(e){return e==="duplicateCount"||e==="damagedCount"}function K(){const e=window.localStorage.getItem(O);if(!e)return{};try{const n=JSON.parse(e);return G(n)}catch{return{}}}function b(e){window.localStorage.setItem(O,JSON.stringify(e))}function G(e){if(!y(e))return{};const n={};for(const[o,s]of Object.entries(e)){const r=Number(o);if(!Number.isInteger(r))continue;if(typeof s=="boolean"){s&&(n[r]={owned:!0,duplicateCount:0,damagedCount:0});continue}if(!y(s))continue;const a=S(s.duplicateCount??s.duplicate),c=S(s.damagedCount??s.damaged),m={owned:s.owned===!0||a>0||c>0,duplicateCount:a,damagedCount:c};m.owned&&(n[r]=m)}return n}function S(e){return typeof e=="number"?g(e):e===!0?1:0}function y(e){return typeof e=="object"&&e!==null&&!Array.isArray(e)}function u(e){const n=document.querySelector(e);if(!n)throw new Error(`필수 화면 요소를 찾지 못했습니다: ${e}`);return n}
+  `}function U(){const e=d.searchTerm.trim().toLowerCase();return f.filter(n=>{const o=i(n.order),s=n.name.toLowerCase().includes(e)||String(n.order).includes(e)||String(n.dexNo).includes(e),r=d.filterMode==="all"||d.filterMode==="owned"&&o.owned||d.filterMode==="missing"&&!o.owned||d.filterMode==="duplicate"&&o.duplicateCount>0||d.filterMode==="damaged"&&o.damagedCount>0;return s&&r})}function j(e){return i(e).owned}function i(e){return d.statusByOrder[e]??q()}function v(e,n){const o={owned:n.owned||n.duplicateCount>0||n.damagedCount>0,duplicateCount:g(n.duplicateCount),damagedCount:g(n.damagedCount)};if(!o.owned){delete d.statusByOrder[e];return}d.statusByOrder[e]=o}function q(){return{owned:!1,duplicateCount:0,damagedCount:0}}function C(e){return`${e}개`}function g(e){return Number.isFinite(e)?Math.min(Math.max(Math.trunc(e),0),M):0}function V(e){return String(e).padStart(2,"0")}function z(e){return e==="all"||e==="owned"||e==="missing"||e==="duplicate"||e==="damaged"}function H(e){return e==="duplicateCount"||e==="damagedCount"}function K(){const e=window.localStorage.getItem(O);if(!e)return{};try{const n=JSON.parse(e);return G(n)}catch{return{}}}function b(e){window.localStorage.setItem(O,JSON.stringify(e))}function G(e){if(!y(e))return{};const n={};for(const[o,s]of Object.entries(e)){const r=Number(o);if(!Number.isInteger(r))continue;if(typeof s=="boolean"){s&&(n[r]={owned:!0,duplicateCount:0,damagedCount:0});continue}if(!y(s))continue;const a=$(s.duplicateCount??s.duplicate),c=$(s.damagedCount??s.damaged),m={owned:s.owned===!0||a>0||c>0,duplicateCount:a,damagedCount:c};m.owned&&(n[r]=m)}return n}function $(e){return typeof e=="number"?g(e):e===!0?1:0}function y(e){return typeof e=="object"&&e!==null&&!Array.isArray(e)}function u(e){const n=document.querySelector(e);if(!n)throw new Error(`필수 화면 요소를 찾지 못했습니다: ${e}`);return n}
