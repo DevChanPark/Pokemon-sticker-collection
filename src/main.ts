@@ -244,7 +244,6 @@ function createCountControl(sticker: Sticker, countStatusKey: CountStatusKey, la
           aria-label="${sticker.name} ${label} 1개 줄이기"
           ${decrementDisabled}
         >-</button>
-        <output aria-label="${sticker.name} ${label} 개수">${value}</output>
         <button
           type="button"
           data-order="${sticker.order}"
