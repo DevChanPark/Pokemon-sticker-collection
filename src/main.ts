@@ -12,19 +12,20 @@ type FilterMode = "all" | "owned" | "missing" | "duplicate" | "damaged";
  */
 type StickerStatus = {
   owned: boolean;
-  duplicate: boolean;
-  damaged: boolean;
+  duplicateCount: number;
+  damagedCount: number;
 };
 
-type StatusKey = keyof StickerStatus;
+type CountStatusKey = "duplicateCount" | "damagedCount";
 
 /**
  * `Record<number, StickerStatus>`는 숫자 키와 상태 객체를 가진 타입입니다.
- * 예: `{ 1: { owned: true, duplicate: false, damaged: true } }`
+ * 예: `{ 1: { owned: true, duplicateCount: 2, damagedCount: 1 } }`
  */
 type CollectionState = Record<number, StickerStatus>;
 
 const STORAGE_KEY = "since-1996-pokemon-sticker-collection";
+const MAX_STATUS_COUNT = 99;
 
 const appState: {
   statusByOrder: CollectionState;
@@ -91,22 +92,55 @@ gridElement.addEventListener("change", (event) => {
   const orderText = target.dataset.order;
   const statusKey = target.dataset.status;
 
-  if (!orderText || !isStatusKey(statusKey)) {
+  if (!orderText || statusKey !== "owned") {
     return;
   }
 
   const stickerOrder = Number(orderText);
   const nextStatus = {
     ...getStickerStatus(stickerOrder),
-    [statusKey]: target.checked
+    owned: target.checked
   };
 
-  if (statusKey === "owned" && !target.checked) {
-    nextStatus.duplicate = false;
-    nextStatus.damaged = false;
+  if (!target.checked) {
+    nextStatus.duplicateCount = 0;
+    nextStatus.damagedCount = 0;
   }
 
-  if ((statusKey === "duplicate" || statusKey === "damaged") && target.checked) {
+  setStickerStatus(stickerOrder, nextStatus);
+  saveCollection(appState.statusByOrder);
+  render();
+});
+
+gridElement.addEventListener("click", (event) => {
+  const target = event.target;
+
+  if (!(target instanceof Element)) {
+    return;
+  }
+
+  const button = target.closest("[data-count-status][data-step][data-order]");
+
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const orderText = button.dataset.order;
+  const countStatusKey = button.dataset.countStatus;
+  const step = Number(button.dataset.step);
+
+  if (!orderText || !isCountStatusKey(countStatusKey) || !Number.isInteger(step)) {
+    return;
+  }
+
+  const stickerOrder = Number(orderText);
+  const currentStatus = getStickerStatus(stickerOrder);
+  const nextStatus = {
+    ...currentStatus,
+    [countStatusKey]: clampStatusCount(currentStatus[countStatusKey] + step)
+  };
+
+  if (nextStatus.duplicateCount > 0 || nextStatus.damagedCount > 0) {
     nextStatus.owned = true;
   }
 
@@ -123,8 +157,11 @@ function render(): void {
 
 function renderStats(): void {
   const ownedCount = stickers.filter((sticker) => isOwned(sticker.order)).length;
-  const duplicateCount = stickers.filter((sticker) => getStickerStatus(sticker.order).duplicate).length;
-  const damagedCount = stickers.filter((sticker) => getStickerStatus(sticker.order).damaged).length;
+  const duplicateCount = stickers.reduce(
+    (total, sticker) => total + getStickerStatus(sticker.order).duplicateCount,
+    0
+  );
+  const damagedCount = stickers.reduce((total, sticker) => total + getStickerStatus(sticker.order).damagedCount, 0);
   const progressPercent = Math.round((ownedCount / stickers.length) * 100);
 
   ownedCountElement.textContent = String(ownedCount);
@@ -152,11 +189,9 @@ function renderGrid(visibleStickers: Sticker[]): void {
 function createStickerCard(sticker: Sticker): string {
   const status = getStickerStatus(sticker.order);
   const ownedClass = status.owned ? " is-owned" : "";
-  const duplicateClass = status.duplicate ? " has-duplicate" : "";
-  const damagedClass = status.damaged ? " has-damage" : "";
+  const duplicateClass = status.duplicateCount > 0 ? " has-duplicate" : "";
+  const damagedClass = status.damagedCount > 0 ? " has-damage" : "";
   const ownedChecked = status.owned ? "checked" : "";
-  const duplicateChecked = status.duplicate ? "checked" : "";
-  const damagedChecked = status.damaged ? "checked" : "";
   const badges = createStatusBadges(status);
 
   return `
@@ -182,25 +217,55 @@ function createStickerCard(sticker: Sticker): string {
             <span>보관</span>
             <input type="checkbox" data-order="${sticker.order}" data-status="owned" ${ownedChecked} />
           </label>
-          <label class="status-toggle status-toggle--duplicate">
-            <span>중복</span>
-            <input type="checkbox" data-order="${sticker.order}" data-status="duplicate" ${duplicateChecked} />
-          </label>
-          <label class="status-toggle status-toggle--damaged">
-            <span>하자</span>
-            <input type="checkbox" data-order="${sticker.order}" data-status="damaged" ${damagedChecked} />
-          </label>
+          ${createCountControl(sticker, "duplicateCount", "중복", status.duplicateCount)}
+          ${createCountControl(sticker, "damagedCount", "하자", status.damagedCount)}
         </div>
       </div>
     </article>
   `;
 }
 
+function createCountControl(sticker: Sticker, countStatusKey: CountStatusKey, label: string, value: number): string {
+  const decrementDisabled = value === 0 ? "disabled" : "";
+
+  return `
+    <div class="count-row count-row--${countStatusKey}">
+      <div class="count-row__label">
+        <span>${label}</span>
+        <span aria-hidden="true">|</span>
+        <output>${formatCount(value)}</output>
+      </div>
+      <div class="count-stepper" aria-label="${sticker.name} ${label} 개수 조절">
+        <button
+          type="button"
+          data-order="${sticker.order}"
+          data-count-status="${countStatusKey}"
+          data-step="-1"
+          aria-label="${sticker.name} ${label} 1개 줄이기"
+          ${decrementDisabled}
+        >-</button>
+        <output aria-label="${sticker.name} ${label} 개수">${value}</output>
+        <button
+          type="button"
+          data-order="${sticker.order}"
+          data-count-status="${countStatusKey}"
+          data-step="1"
+          aria-label="${sticker.name} ${label} 1개 늘리기"
+        >+</button>
+      </div>
+    </div>
+  `;
+}
+
 function createStatusBadges(status: StickerStatus): string {
   const badges = [
     status.owned ? { className: "status-badge--owned", label: "보관" } : undefined,
-    status.duplicate ? { className: "status-badge--duplicate", label: "중복" } : undefined,
-    status.damaged ? { className: "status-badge--damaged", label: "하자" } : undefined
+    status.duplicateCount > 0
+      ? { className: "status-badge--duplicate", label: `중복 ${formatCount(status.duplicateCount)}` }
+      : undefined,
+    status.damagedCount > 0
+      ? { className: "status-badge--damaged", label: `하자 ${formatCount(status.damagedCount)}` }
+      : undefined
   ].filter((badge): badge is { className: string; label: string } => badge !== undefined);
 
   if (badges.length === 0) {
@@ -227,8 +292,8 @@ function getVisibleStickers(): Sticker[] {
       appState.filterMode === "all" ||
       (appState.filterMode === "owned" && status.owned) ||
       (appState.filterMode === "missing" && !status.owned) ||
-      (appState.filterMode === "duplicate" && status.duplicate) ||
-      (appState.filterMode === "damaged" && status.damaged);
+      (appState.filterMode === "duplicate" && status.duplicateCount > 0) ||
+      (appState.filterMode === "damaged" && status.damagedCount > 0);
 
     /**
      * filter 콜백은 true를 반환한 항목만 새 배열에 남깁니다.
@@ -247,20 +312,38 @@ function getStickerStatus(stickerOrder: number): StickerStatus {
 }
 
 function setStickerStatus(stickerOrder: number, nextStatus: StickerStatus): void {
-  if (!nextStatus.owned) {
+  const normalizedStatus = {
+    owned: nextStatus.owned || nextStatus.duplicateCount > 0 || nextStatus.damagedCount > 0,
+    duplicateCount: clampStatusCount(nextStatus.duplicateCount),
+    damagedCount: clampStatusCount(nextStatus.damagedCount)
+  };
+
+  if (!normalizedStatus.owned) {
     delete appState.statusByOrder[stickerOrder];
     return;
   }
 
-  appState.statusByOrder[stickerOrder] = nextStatus;
+  appState.statusByOrder[stickerOrder] = normalizedStatus;
 }
 
 function createEmptyStatus(): StickerStatus {
   return {
     owned: false,
-    duplicate: false,
-    damaged: false
+    duplicateCount: 0,
+    damagedCount: 0
   };
+}
+
+function formatCount(value: number): string {
+  return `${value}개`;
+}
+
+function clampStatusCount(value: number): number {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.min(Math.max(Math.trunc(value), 0), MAX_STATUS_COUNT);
 }
 
 function padNumber(value: number): string {
@@ -277,8 +360,8 @@ function isFilterMode(value: string | undefined): value is FilterMode {
   );
 }
 
-function isStatusKey(value: string | undefined): value is StatusKey {
-  return value === "owned" || value === "duplicate" || value === "damaged";
+function isCountStatusKey(value: string | undefined): value is CountStatusKey {
+  return value === "duplicateCount" || value === "damagedCount";
 }
 
 function loadCollection(): CollectionState {
@@ -322,8 +405,8 @@ function parseCollectionState(value: unknown): CollectionState {
       if (statusValue) {
         nextState[stickerOrder] = {
           owned: true,
-          duplicate: false,
-          damaged: false
+          duplicateCount: 0,
+          damagedCount: 0
         };
       }
       continue;
@@ -333,15 +416,13 @@ function parseCollectionState(value: unknown): CollectionState {
       continue;
     }
 
+    const duplicateCount = readStatusCount(statusValue.duplicateCount ?? statusValue.duplicate);
+    const damagedCount = readStatusCount(statusValue.damagedCount ?? statusValue.damaged);
     const nextStatus = {
-      owned: statusValue.owned === true,
-      duplicate: statusValue.duplicate === true,
-      damaged: statusValue.damaged === true
+      owned: statusValue.owned === true || duplicateCount > 0 || damagedCount > 0,
+      duplicateCount,
+      damagedCount
     };
-
-    if (nextStatus.duplicate || nextStatus.damaged) {
-      nextStatus.owned = true;
-    }
 
     if (nextStatus.owned) {
       nextState[stickerOrder] = nextStatus;
@@ -349,6 +430,14 @@ function parseCollectionState(value: unknown): CollectionState {
   }
 
   return nextState;
+}
+
+function readStatusCount(value: unknown): number {
+  if (typeof value === "number") {
+    return clampStatusCount(value);
+  }
+
+  return value === true ? 1 : 0;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

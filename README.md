@@ -28,9 +28,10 @@ https://devchanpark.github.io/Pokemon-sticker-collection/
 
 - 띠부씰 이미지와 이름 표시
 - 보관 여부 체크
+- 중복/하자 개수 표시
 - 보관 수와 진행률 표시
 - 이름, 순번, 도감 번호 검색
-- 전체/보관/미보관 필터
+- 전체/보관/미보관/중복/하자 필터
 - 체크 상태를 `localStorage`에 저장
 
 ## 학습 포인트
