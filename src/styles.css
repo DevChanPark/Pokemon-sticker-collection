@@ -74,11 +74,35 @@ h1 {
   font-weight: 700;
 }
 
-.stats strong {
+.stats__main strong {
   margin-left: 8px;
   color: #1d4ed8;
   font-size: 2rem;
   line-height: 1;
+}
+
+.stats__details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #526078;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.stats__details span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  border: 1px solid #d8deea;
+  border-radius: 999px;
+  padding: 0 10px;
+  background: #f8fafc;
+}
+
+.stats__details strong {
+  color: #d1352b;
 }
 
 .progress {
@@ -139,7 +163,7 @@ h1 {
 
 .segments {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   overflow: hidden;
   height: 44px;
   border: 1px solid #cfd7e6;
@@ -150,7 +174,7 @@ h1 {
 .segment {
   border: 0;
   border-right: 1px solid #d8deea;
-  padding: 0 14px;
+  padding: 0 12px;
   color: #526078;
   background: transparent;
   cursor: pointer;
@@ -190,7 +214,7 @@ h1 {
   display: grid;
   grid-template-rows: 148px 1fr;
   overflow: hidden;
-  min-height: 270px;
+  min-height: 328px;
   border: 1px solid #d8deea;
   border-radius: 8px;
   background: #ffffff;
@@ -200,6 +224,23 @@ h1 {
 .sticker-card.is-owned {
   border-color: #f1c40f;
   box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.32), 0 8px 24px rgba(23, 32, 51, 0.08);
+}
+
+.sticker-card.has-duplicate {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.24), 0 8px 24px rgba(23, 32, 51, 0.08);
+}
+
+.sticker-card.has-damage {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2), 0 8px 24px rgba(23, 32, 51, 0.08);
+}
+
+.sticker-card.has-duplicate.has-damage {
+  box-shadow:
+    0 0 0 2px rgba(56, 189, 248, 0.2),
+    0 0 0 4px rgba(239, 68, 68, 0.14),
+    0 8px 24px rgba(23, 32, 51, 0.08);
 }
 
 .sticker-card__image-wrap {
@@ -240,25 +281,67 @@ h1 {
   letter-spacing: 0;
 }
 
-.owned-toggle {
+.sticker-card__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sticker-card__badges span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  border-radius: 999px;
+  padding: 0 8px;
+  color: #172033;
+  background: #eef2f8;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.sticker-card__badges .status-badge--duplicate {
+  color: #075985;
+  background: #e0f2fe;
+}
+
+.sticker-card__badges .status-badge--damaged {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.status-toggles {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid #eef2f8;
+  padding-top: 12px;
+}
+
+.status-toggle {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-height: 38px;
-  border-top: 1px solid #eef2f8;
-  padding-top: 12px;
+  min-height: 34px;
   color: #526078;
   font-size: 0.88rem;
   font-weight: 800;
   cursor: pointer;
 }
 
-.owned-toggle input {
+.status-toggle input {
   width: 22px;
   height: 22px;
   accent-color: #1d4ed8;
   cursor: pointer;
+}
+
+.status-toggle--duplicate input {
+  accent-color: #0284c7;
+}
+
+.status-toggle--damaged input {
+  accent-color: #dc2626;
 }
 
 @media (max-width: 720px) {
@@ -283,7 +366,7 @@ h1 {
 
   .sticker-card {
     grid-template-rows: 128px 1fr;
-    min-height: 246px;
+    min-height: 304px;
   }
 
   .sticker-card__image {

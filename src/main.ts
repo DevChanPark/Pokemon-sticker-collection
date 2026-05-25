@@ -3,24 +3,35 @@ import { stickers, type Sticker } from "./stickers";
 /**
  * TypeScript 학습 포인트:
  * - 문자열 리터럴 유니언 타입은 정해진 문자열만 허용합니다.
- * - 여기서는 필터 값이 "all" | "owned" | "missing" 중 하나만 되도록 막습니다.
+ * - 여기서는 필터 값이 정해진 값 중 하나만 되도록 막습니다.
  */
-type FilterMode = "all" | "owned" | "missing";
+type FilterMode = "all" | "owned" | "missing" | "duplicate" | "damaged";
 
 /**
- * `Record<number, boolean>`은 숫자 키와 boolean 값을 가진 객체 타입입니다.
- * 예: `{ 1: true, 2: false }`는 1번 씰은 보관, 2번 씰은 미보관이라는 뜻입니다.
+ * 각 띠부씰에 표시할 수 있는 상태입니다.
  */
-type CollectionState = Record<number, boolean>;
+type StickerStatus = {
+  owned: boolean;
+  duplicate: boolean;
+  damaged: boolean;
+};
+
+type StatusKey = keyof StickerStatus;
+
+/**
+ * `Record<number, StickerStatus>`는 숫자 키와 상태 객체를 가진 타입입니다.
+ * 예: `{ 1: { owned: true, duplicate: false, damaged: true } }`
+ */
+type CollectionState = Record<number, StickerStatus>;
 
 const STORAGE_KEY = "since-1996-pokemon-sticker-collection";
 
 const appState: {
-  ownedByOrder: CollectionState;
+  statusByOrder: CollectionState;
   searchTerm: string;
   filterMode: FilterMode;
 } = {
-  ownedByOrder: loadCollection(),
+  statusByOrder: loadCollection(),
   searchTerm: "",
   filterMode: "all"
 };
@@ -32,6 +43,8 @@ const appState: {
 const gridElement = requireElement<HTMLElement>("#collection-grid");
 const searchInput = requireElement<HTMLInputElement>("#search-input");
 const ownedCountElement = requireElement<HTMLElement>("#owned-count");
+const duplicateCountElement = requireElement<HTMLElement>("#duplicate-count");
+const damagedCountElement = requireElement<HTMLElement>("#damaged-count");
 const progressBarElement = requireElement<HTMLElement>("#progress-bar");
 const clearButton = requireElement<HTMLButtonElement>("#clear-button");
 const filterButtons = document.querySelectorAll<HTMLButtonElement>("[data-filter]");
@@ -59,8 +72,8 @@ filterButtons.forEach((button) => {
 });
 
 clearButton.addEventListener("click", () => {
-  appState.ownedByOrder = {};
-  saveCollection(appState.ownedByOrder);
+  appState.statusByOrder = {};
+  saveCollection(appState.statusByOrder);
   render();
 });
 
@@ -76,13 +89,29 @@ gridElement.addEventListener("change", (event) => {
   }
 
   const orderText = target.dataset.order;
-  if (!orderText) {
+  const statusKey = target.dataset.status;
+
+  if (!orderText || !isStatusKey(statusKey)) {
     return;
   }
 
   const stickerOrder = Number(orderText);
-  appState.ownedByOrder[stickerOrder] = target.checked;
-  saveCollection(appState.ownedByOrder);
+  const nextStatus = {
+    ...getStickerStatus(stickerOrder),
+    [statusKey]: target.checked
+  };
+
+  if (statusKey === "owned" && !target.checked) {
+    nextStatus.duplicate = false;
+    nextStatus.damaged = false;
+  }
+
+  if ((statusKey === "duplicate" || statusKey === "damaged") && target.checked) {
+    nextStatus.owned = true;
+  }
+
+  setStickerStatus(stickerOrder, nextStatus);
+  saveCollection(appState.statusByOrder);
   render();
 });
 
@@ -94,9 +123,13 @@ function render(): void {
 
 function renderStats(): void {
   const ownedCount = stickers.filter((sticker) => isOwned(sticker.order)).length;
+  const duplicateCount = stickers.filter((sticker) => getStickerStatus(sticker.order).duplicate).length;
+  const damagedCount = stickers.filter((sticker) => getStickerStatus(sticker.order).damaged).length;
   const progressPercent = Math.round((ownedCount / stickers.length) * 100);
 
   ownedCountElement.textContent = String(ownedCount);
+  duplicateCountElement.textContent = String(duplicateCount);
+  damagedCountElement.textContent = String(damagedCount);
   progressBarElement.style.width = `${progressPercent}%`;
 }
 
@@ -117,13 +150,17 @@ function renderGrid(visibleStickers: Sticker[]): void {
 }
 
 function createStickerCard(sticker: Sticker): string {
-  const owned = isOwned(sticker.order);
-  const ownedClass = owned ? " is-owned" : "";
-  const checked = owned ? "checked" : "";
-  const ownedLabel = owned ? "보관 중" : "보관 여부";
+  const status = getStickerStatus(sticker.order);
+  const ownedClass = status.owned ? " is-owned" : "";
+  const duplicateClass = status.duplicate ? " has-duplicate" : "";
+  const damagedClass = status.damaged ? " has-damage" : "";
+  const ownedChecked = status.owned ? "checked" : "";
+  const duplicateChecked = status.duplicate ? "checked" : "";
+  const damagedChecked = status.damaged ? "checked" : "";
+  const badges = createStatusBadges(status);
 
   return `
-    <article class="sticker-card${ownedClass}">
+    <article class="sticker-card${ownedClass}${duplicateClass}${damagedClass}">
       <div class="sticker-card__image-wrap">
         <img
           class="sticker-card__image"
@@ -137,14 +174,43 @@ function createStickerCard(sticker: Sticker): string {
         <div>
           <span class="sticker-card__meta">#${padNumber(sticker.order)} · 도감 ${sticker.dexNo}</span>
           <h2>${sticker.name}</h2>
+          ${badges}
         </div>
 
-        <label class="owned-toggle">
-          <input type="checkbox" data-order="${sticker.order}" ${checked} />
-          <span>${ownedLabel}</span>
-        </label>
+        <div class="status-toggles" aria-label="${sticker.name} 상태 표시">
+          <label class="status-toggle status-toggle--owned">
+            <span>보관</span>
+            <input type="checkbox" data-order="${sticker.order}" data-status="owned" ${ownedChecked} />
+          </label>
+          <label class="status-toggle status-toggle--duplicate">
+            <span>중복</span>
+            <input type="checkbox" data-order="${sticker.order}" data-status="duplicate" ${duplicateChecked} />
+          </label>
+          <label class="status-toggle status-toggle--damaged">
+            <span>하자</span>
+            <input type="checkbox" data-order="${sticker.order}" data-status="damaged" ${damagedChecked} />
+          </label>
+        </div>
       </div>
     </article>
+  `;
+}
+
+function createStatusBadges(status: StickerStatus): string {
+  const badges = [
+    status.owned ? { className: "status-badge--owned", label: "보관" } : undefined,
+    status.duplicate ? { className: "status-badge--duplicate", label: "중복" } : undefined,
+    status.damaged ? { className: "status-badge--damaged", label: "하자" } : undefined
+  ].filter((badge): badge is { className: string; label: string } => badge !== undefined);
+
+  if (badges.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="sticker-card__badges" aria-label="표시된 상태">
+      ${badges.map((badge) => `<span class="${badge.className}">${badge.label}</span>`).join("")}
+    </div>
   `;
 }
 
@@ -152,15 +218,17 @@ function getVisibleStickers(): Sticker[] {
   const normalizedSearchTerm = appState.searchTerm.trim().toLowerCase();
 
   return stickers.filter((sticker) => {
-    const owned = isOwned(sticker.order);
+    const status = getStickerStatus(sticker.order);
     const matchesSearch =
       sticker.name.toLowerCase().includes(normalizedSearchTerm) ||
       String(sticker.order).includes(normalizedSearchTerm) ||
       String(sticker.dexNo).includes(normalizedSearchTerm);
     const matchesFilter =
       appState.filterMode === "all" ||
-      (appState.filterMode === "owned" && owned) ||
-      (appState.filterMode === "missing" && !owned);
+      (appState.filterMode === "owned" && status.owned) ||
+      (appState.filterMode === "missing" && !status.owned) ||
+      (appState.filterMode === "duplicate" && status.duplicate) ||
+      (appState.filterMode === "damaged" && status.damaged);
 
     /**
      * filter 콜백은 true를 반환한 항목만 새 배열에 남깁니다.
@@ -171,7 +239,28 @@ function getVisibleStickers(): Sticker[] {
 }
 
 function isOwned(stickerOrder: number): boolean {
-  return appState.ownedByOrder[stickerOrder] === true;
+  return getStickerStatus(stickerOrder).owned;
+}
+
+function getStickerStatus(stickerOrder: number): StickerStatus {
+  return appState.statusByOrder[stickerOrder] ?? createEmptyStatus();
+}
+
+function setStickerStatus(stickerOrder: number, nextStatus: StickerStatus): void {
+  if (!nextStatus.owned) {
+    delete appState.statusByOrder[stickerOrder];
+    return;
+  }
+
+  appState.statusByOrder[stickerOrder] = nextStatus;
+}
+
+function createEmptyStatus(): StickerStatus {
+  return {
+    owned: false,
+    duplicate: false,
+    damaged: false
+  };
 }
 
 function padNumber(value: number): string {
@@ -179,7 +268,17 @@ function padNumber(value: number): string {
 }
 
 function isFilterMode(value: string | undefined): value is FilterMode {
-  return value === "all" || value === "owned" || value === "missing";
+  return (
+    value === "all" ||
+    value === "owned" ||
+    value === "missing" ||
+    value === "duplicate" ||
+    value === "damaged"
+  );
+}
+
+function isStatusKey(value: string | undefined): value is StatusKey {
+  return value === "owned" || value === "duplicate" || value === "damaged";
 }
 
 function loadCollection(): CollectionState {
@@ -194,7 +293,8 @@ function loadCollection(): CollectionState {
      * JSON.parse는 문자열을 객체로 되돌립니다.
      * localStorage에는 문자열만 저장할 수 있어서, 객체 저장 전후에 JSON 변환이 필요합니다.
      */
-    return JSON.parse(savedValue) as CollectionState;
+    const parsedValue: unknown = JSON.parse(savedValue);
+    return parseCollectionState(parsedValue);
   } catch {
     return {};
   }
@@ -202,6 +302,57 @@ function loadCollection(): CollectionState {
 
 function saveCollection(nextState: CollectionState): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+}
+
+function parseCollectionState(value: unknown): CollectionState {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  const nextState: CollectionState = {};
+
+  for (const [orderText, statusValue] of Object.entries(value)) {
+    const stickerOrder = Number(orderText);
+
+    if (!Number.isInteger(stickerOrder)) {
+      continue;
+    }
+
+    if (typeof statusValue === "boolean") {
+      if (statusValue) {
+        nextState[stickerOrder] = {
+          owned: true,
+          duplicate: false,
+          damaged: false
+        };
+      }
+      continue;
+    }
+
+    if (!isRecord(statusValue)) {
+      continue;
+    }
+
+    const nextStatus = {
+      owned: statusValue.owned === true,
+      duplicate: statusValue.duplicate === true,
+      damaged: statusValue.damaged === true
+    };
+
+    if (nextStatus.duplicate || nextStatus.damaged) {
+      nextStatus.owned = true;
+    }
+
+    if (nextStatus.owned) {
+      nextState[stickerOrder] = nextStatus;
+    }
+  }
+
+  return nextState;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
 function requireElement<T extends Element>(selector: string): T {
