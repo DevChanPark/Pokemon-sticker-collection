@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Since 1996 포켓몬 띠부씰 컬렉션</title>
-    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-YjRQHOP7.js"></script>
-    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-CPyE3tZJ.css">
+    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-BT76MlEs.js"></script>
+    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-ofZuSSXg.css">
   </head>
   <body>
     <main class="app-shell">
@@ -16,13 +16,17 @@
         </div>
 
         <section class="stats" aria-label="수집 현황">
-          <div>
+          <div class="stats__main">
             <span class="stats__label">보관</span>
             <strong id="owned-count">0</strong>
             <span class="stats__total">/ 100</span>
           </div>
           <div class="progress" aria-hidden="true">
             <span id="progress-bar"></span>
+          </div>
+          <div class="stats__details" aria-label="추가 표시 현황">
+            <span>중복 <strong id="duplicate-count">0</strong></span>
+            <span>하자 <strong id="damaged-count">0</strong></span>
           </div>
         </section>
       </header>
@@ -37,6 +41,8 @@
           <button type="button" class="segment is-active" data-filter="all">전체</button>
           <button type="button" class="segment" data-filter="owned">보관</button>
           <button type="button" class="segment" data-filter="missing">미보관</button>
+          <button type="button" class="segment" data-filter="duplicate">중복</button>
+          <button type="button" class="segment" data-filter="damaged">하자</button>
         </div>
 
         <button type="button" class="ghost-button" id="clear-button">초기화</button>
