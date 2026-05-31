@@ -1,15 +1,13 @@
-import { stickers, type Sticker } from "./stickers";
+import {
+  DEFAULT_SERIES_ID,
+  stickerSeries,
+  type Sticker,
+  type StickerSeries,
+  type StickerSeriesVerification
+} from "./stickers";
 
-/**
- * TypeScript 학습 포인트:
- * - 문자열 리터럴 유니언 타입은 정해진 문자열만 허용합니다.
- * - 여기서는 필터 값이 정해진 값 중 하나만 되도록 막습니다.
- */
 type FilterMode = "all" | "owned" | "missing" | "duplicate" | "damaged";
 
-/**
- * 각 띠부씰에 표시할 수 있는 상태입니다.
- */
 type StickerStatus = {
   owned: boolean;
   duplicateCount: number;
@@ -17,33 +15,32 @@ type StickerStatus = {
 };
 
 type CountStatusKey = "duplicateCount" | "damagedCount";
-
-/**
- * `Record<number, StickerStatus>`는 숫자 키와 상태 객체를 가진 타입입니다.
- * 예: `{ 1: { owned: true, duplicateCount: 2, damagedCount: 1 } }`
- */
 type CollectionState = Record<number, StickerStatus>;
+type SeriesCollectionState = Record<string, CollectionState>;
 
-const STORAGE_KEY = "since-1996-pokemon-sticker-collection";
+const STORAGE_KEY = "pokemon-sticker-collection-by-series";
+const LEGACY_STORAGE_KEY = "since-1996-pokemon-sticker-collection";
+const SELECTED_SERIES_KEY = "pokemon-sticker-collection-selected-series";
 const MAX_STATUS_COUNT = 99;
 
 const appState: {
-  statusByOrder: CollectionState;
+  collectionBySeries: SeriesCollectionState;
+  selectedSeriesId: string;
   searchTerm: string;
   filterMode: FilterMode;
 } = {
-  statusByOrder: loadCollection(),
+  collectionBySeries: loadCollection(),
+  selectedSeriesId: loadSelectedSeriesId(),
   searchTerm: "",
   filterMode: "all"
 };
 
-/**
- * `querySelector<T>()`의 `<T>`는 제네릭 문법입니다.
- * TS에게 "이 DOM은 HTMLInputElement야"라고 알려주면 `.value` 같은 속성을 안전하게 쓸 수 있습니다.
- */
 const gridElement = requireElement<HTMLElement>("#collection-grid");
+const seriesTabsElement = requireElement<HTMLElement>("#series-tabs");
+const seriesGuideBodyElement = requireElement<HTMLElement>("#series-guide-body");
 const searchInput = requireElement<HTMLInputElement>("#search-input");
 const ownedCountElement = requireElement<HTMLElement>("#owned-count");
+const seriesTotalCountElement = requireElement<HTMLElement>("#series-total-count");
 const totalCountElement = requireElement<HTMLElement>("#total-count");
 const duplicateCountElement = requireElement<HTMLElement>("#duplicate-count");
 const damagedCountElement = requireElement<HTMLElement>("#damaged-count");
@@ -62,10 +59,6 @@ filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const nextFilter = button.dataset.filter;
 
-    /**
-     * dataset 값은 HTML에서 온 문자열이라 TS 입장에서는 그냥 string입니다.
-     * 그래서 `isFilterMode` 함수로 우리가 허용한 값인지 검사한 뒤 상태에 저장합니다.
-     */
     if (isFilterMode(nextFilter)) {
       appState.filterMode = nextFilter;
       render();
@@ -73,19 +66,42 @@ filterButtons.forEach((button) => {
   });
 });
 
+seriesTabsElement.addEventListener("click", (event) => {
+  const target = event.target;
+
+  if (!(target instanceof Element)) {
+    return;
+  }
+
+  const button = target.closest("[data-series-id]");
+
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  const nextSeriesId = button.dataset.seriesId;
+
+  if (!nextSeriesId || !getSeriesById(nextSeriesId)) {
+    return;
+  }
+
+  appState.selectedSeriesId = nextSeriesId;
+  appState.searchTerm = "";
+  appState.filterMode = "all";
+  searchInput.value = "";
+  window.localStorage.setItem(SELECTED_SERIES_KEY, nextSeriesId);
+  render();
+});
+
 clearButton.addEventListener("click", () => {
-  appState.statusByOrder = {};
-  saveCollection(appState.statusByOrder);
+  delete appState.collectionBySeries[appState.selectedSeriesId];
+  saveCollection(appState.collectionBySeries);
   render();
 });
 
 gridElement.addEventListener("change", (event) => {
   const target = event.target;
 
-  /**
-   * 브라우저 이벤트의 target은 Element가 아닐 수도 있습니다.
-   * `instanceof HTMLInputElement`로 확인해야 checkbox 전용 속성인 `.checked`를 안전하게 씁니다.
-   */
   if (!(target instanceof HTMLInputElement)) {
     return;
   }
@@ -109,7 +125,7 @@ gridElement.addEventListener("change", (event) => {
   }
 
   setStickerStatus(stickerOrder, nextStatus);
-  saveCollection(appState.statusByOrder);
+  saveCollection(appState.collectionBySeries);
   render();
 });
 
@@ -146,17 +162,62 @@ gridElement.addEventListener("click", (event) => {
   }
 
   setStickerStatus(stickerOrder, nextStatus);
-  saveCollection(appState.statusByOrder);
+  saveCollection(appState.collectionBySeries);
   render();
 });
 
 function render(): void {
+  renderSeriesTabs();
+  renderSeriesGuide();
   renderStats();
   renderFilterButtons();
   renderGrid(getVisibleStickers());
 }
 
+function renderSeriesTabs(): void {
+  seriesTabsElement.innerHTML = stickerSeries.map(createSeriesTab).join("");
+}
+
+function createSeriesTab(series: StickerSeries): string {
+  const isActive = series.id === appState.selectedSeriesId;
+  const status = getSeriesProgress(series);
+  const dataReadyLabel = series.stickers.length > 0 ? "체크 가능" : "데이터 준비중";
+  const activeClass = isActive ? " is-active" : "";
+  const pendingClass = series.stickers.length === 0 ? " is-pending" : "";
+
+  return `
+    <button
+      type="button"
+      class="series-tab${activeClass}${pendingClass}"
+      data-series-id="${series.id}"
+      role="tab"
+      aria-selected="${String(isActive)}"
+    >
+      <span class="series-tab__name">${series.shortTitle}</span>
+      <span class="series-tab__meta">${series.total}종 · ${dataReadyLabel}</span>
+      <span class="series-tab__progress">${status.ownedCount} / ${series.total}</span>
+    </button>
+  `;
+}
+
+function renderSeriesGuide(): void {
+  seriesGuideBodyElement.innerHTML = stickerSeries
+    .map(
+      (series) => `
+        <tr>
+          <th scope="row">${series.title}</th>
+          <td>${series.total}종</td>
+          <td><span class="source-pill source-pill--${series.verification}">${getVerificationLabel(series.verification)}</span></td>
+          <td>${series.note}</td>
+        </tr>
+      `
+    )
+    .join("");
+}
+
 function renderStats(): void {
+  const series = getCurrentSeries();
+  const stickers = getCurrentStickers();
   const ownedCount = stickers.filter((sticker) => isOwned(sticker.order)).length;
   const duplicateCount = stickers.reduce(
     (total, sticker) => total + getStickerStatus(sticker.order).duplicateCount,
@@ -164,9 +225,10 @@ function renderStats(): void {
   );
   const damagedCount = stickers.reduce((total, sticker) => total + getStickerStatus(sticker.order).damagedCount, 0);
   const totalCount = stickers.reduce((total, sticker) => total + getTotalStickerCount(getStickerStatus(sticker.order)), 0);
-  const progressPercent = Math.round((ownedCount / stickers.length) * 100);
+  const progressPercent = series.total > 0 ? Math.round((ownedCount / series.total) * 100) : 0;
 
   ownedCountElement.textContent = String(ownedCount);
+  seriesTotalCountElement.textContent = String(series.total);
   totalCountElement.textContent = String(totalCount);
   duplicateCountElement.textContent = String(duplicateCount);
   damagedCountElement.textContent = String(damagedCount);
@@ -182,10 +244,22 @@ function renderFilterButtons(): void {
 }
 
 function renderGrid(visibleStickers: Sticker[]): void {
-  /**
-   * `map()`은 배열의 각 항목을 다른 값으로 바꾸는 메서드입니다.
-   * 여기서는 Sticker 객체 배열을 HTML 문자열 배열로 바꾼 뒤 `join("")`으로 하나로 합칩니다.
-   */
+  const series = getCurrentSeries();
+  gridElement.classList.toggle("collection-grid--empty", visibleStickers.length === 0);
+
+  if (series.stickers.length === 0) {
+    gridElement.innerHTML = createEmptyState(
+      `${series.title} 데이터 준비 중`,
+      `${series.total}종 시리즈 슬롯은 분리해뒀어요. 씰 목록을 채우면 이 시리즈도 바로 체크할 수 있습니다.`
+    );
+    return;
+  }
+
+  if (visibleStickers.length === 0) {
+    gridElement.innerHTML = createEmptyState("조건에 맞는 띠부씰이 없어요", "검색어나 필터를 바꿔서 다시 확인해보세요.");
+    return;
+  }
+
   gridElement.innerHTML = visibleStickers.map(createStickerCard).join("");
 }
 
@@ -283,10 +357,19 @@ function createStatusBadges(status: StickerStatus): string {
   `;
 }
 
+function createEmptyState(title: string, description: string): string {
+  return `
+    <div class="empty-state">
+      <h2>${title}</h2>
+      <p>${description}</p>
+    </div>
+  `;
+}
+
 function getVisibleStickers(): Sticker[] {
   const normalizedSearchTerm = appState.searchTerm.trim().toLowerCase();
 
-  return stickers.filter((sticker) => {
+  return getCurrentStickers().filter((sticker) => {
     const status = getStickerStatus(sticker.order);
     const matchesSearch =
       sticker.name.toLowerCase().includes(normalizedSearchTerm) ||
@@ -299,12 +382,34 @@ function getVisibleStickers(): Sticker[] {
       (appState.filterMode === "duplicate" && status.duplicateCount > 0) ||
       (appState.filterMode === "damaged" && status.damagedCount > 0);
 
-    /**
-     * filter 콜백은 true를 반환한 항목만 새 배열에 남깁니다.
-     * 검색 조건과 필터 조건을 모두 만족해야 화면에 보이게 했습니다.
-     */
     return matchesSearch && matchesFilter;
   });
+}
+
+function getCurrentSeries(): StickerSeries {
+  return getSeriesById(appState.selectedSeriesId) ?? getSeriesById(DEFAULT_SERIES_ID) ?? stickerSeries[0];
+}
+
+function getCurrentStickers(): Sticker[] {
+  return getCurrentSeries().stickers;
+}
+
+function getCurrentSeriesState(): CollectionState {
+  const currentState = appState.collectionBySeries[appState.selectedSeriesId] ?? {};
+  appState.collectionBySeries[appState.selectedSeriesId] = currentState;
+  return currentState;
+}
+
+function getSeriesProgress(series: StickerSeries): { ownedCount: number; totalCount: number } {
+  const state = appState.collectionBySeries[series.id] ?? {};
+  const ownedCount = series.stickers.filter((sticker) => state[sticker.order]?.owned === true).length;
+  const totalCount = series.stickers.reduce((total, sticker) => total + getTotalStickerCount(state[sticker.order] ?? createEmptyStatus()), 0);
+
+  return { ownedCount, totalCount };
+}
+
+function getSeriesById(seriesId: string): StickerSeries | undefined {
+  return stickerSeries.find((series) => series.id === seriesId);
 }
 
 function isOwned(stickerOrder: number): boolean {
@@ -312,7 +417,7 @@ function isOwned(stickerOrder: number): boolean {
 }
 
 function getStickerStatus(stickerOrder: number): StickerStatus {
-  return appState.statusByOrder[stickerOrder] ?? createEmptyStatus();
+  return getCurrentSeriesState()[stickerOrder] ?? createEmptyStatus();
 }
 
 function setStickerStatus(stickerOrder: number, nextStatus: StickerStatus): void {
@@ -321,13 +426,14 @@ function setStickerStatus(stickerOrder: number, nextStatus: StickerStatus): void
     duplicateCount: clampStatusCount(nextStatus.duplicateCount),
     damagedCount: clampStatusCount(nextStatus.damagedCount)
   };
+  const currentSeriesState = getCurrentSeriesState();
 
   if (!normalizedStatus.owned) {
-    delete appState.statusByOrder[stickerOrder];
+    delete currentSeriesState[stickerOrder];
     return;
   }
 
-  appState.statusByOrder[stickerOrder] = normalizedStatus;
+  currentSeriesState[stickerOrder] = normalizedStatus;
 }
 
 function createEmptyStatus(): StickerStatus {
@@ -344,6 +450,14 @@ function getTotalStickerCount(status: StickerStatus): number {
 
 function formatCount(value: number): string {
   return `${value}개`;
+}
+
+function getVerificationLabel(verification: StickerSeriesVerification): string {
+  if (verification === "official") {
+    return "공식 확인";
+  }
+
+  return verification === "checked" ? "교차 확인" : "검증 중";
 }
 
 function clampStatusCount(value: number): number {
@@ -372,27 +486,65 @@ function isCountStatusKey(value: string | undefined): value is CountStatusKey {
   return value === "duplicateCount" || value === "damagedCount";
 }
 
-function loadCollection(): CollectionState {
+function loadSelectedSeriesId(): string {
+  const savedSeriesId = window.localStorage.getItem(SELECTED_SERIES_KEY);
+
+  if (savedSeriesId && getSeriesById(savedSeriesId)) {
+    return savedSeriesId;
+  }
+
+  return DEFAULT_SERIES_ID;
+}
+
+function loadCollection(): SeriesCollectionState {
   const savedValue = window.localStorage.getItem(STORAGE_KEY);
 
-  if (!savedValue) {
+  if (savedValue) {
+    try {
+      return parseSeriesCollectionState(JSON.parse(savedValue));
+    } catch {
+      return {};
+    }
+  }
+
+  const legacyValue = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+
+  if (!legacyValue) {
     return {};
   }
 
   try {
-    /**
-     * JSON.parse는 문자열을 객체로 되돌립니다.
-     * localStorage에는 문자열만 저장할 수 있어서, 객체 저장 전후에 JSON 변환이 필요합니다.
-     */
-    const parsedValue: unknown = JSON.parse(savedValue);
-    return parseCollectionState(parsedValue);
+    const legacyCollection = parseCollectionState(JSON.parse(legacyValue));
+    return Object.keys(legacyCollection).length > 0 ? { [DEFAULT_SERIES_ID]: legacyCollection } : {};
   } catch {
     return {};
   }
 }
 
-function saveCollection(nextState: CollectionState): void {
+function saveCollection(nextState: SeriesCollectionState): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+}
+
+function parseSeriesCollectionState(value: unknown): SeriesCollectionState {
+  if (!isRecord(value)) {
+    return {};
+  }
+
+  const nextState: SeriesCollectionState = {};
+
+  for (const [seriesId, collectionValue] of Object.entries(value)) {
+    if (!getSeriesById(seriesId)) {
+      continue;
+    }
+
+    const collectionState = parseCollectionState(collectionValue);
+
+    if (Object.keys(collectionState).length > 0) {
+      nextState[seriesId] = collectionState;
+    }
+  }
+
+  return nextState;
 }
 
 function parseCollectionState(value: unknown): CollectionState {

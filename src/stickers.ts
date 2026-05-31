@@ -15,6 +15,18 @@ export type Sticker = {
   readonly imageUrl: string;
 };
 
+export type StickerSeriesVerification = "official" | "checked" | "checking";
+
+export type StickerSeries = {
+  readonly id: string;
+  readonly title: string;
+  readonly shortTitle: string;
+  readonly total: number;
+  readonly verification: StickerSeriesVerification;
+  readonly note: string;
+  readonly stickers: Sticker[];
+};
+
 /**
  * 함수의 매개변수와 반환값에 타입을 붙이면, 잘못된 값을 넣었을 때 TS가 미리 알려줍니다.
  * 예: `makeArtworkUrl("피카츄")`처럼 문자열을 넣으면 컴파일 오류가 납니다.
@@ -29,7 +41,7 @@ const makeSticker = (order: number, dexNo: number, name: string): Sticker => ({
   imageUrl: makeArtworkUrl(dexNo)
 });
 
-export const stickers: Sticker[] = [
+const anniversary30Stickers: Sticker[] = [
   makeSticker(1, 1, "이상해씨"),
   makeSticker(2, 2, "이상해풀"),
   makeSticker(3, 3, "이상해꽃"),
@@ -131,3 +143,145 @@ export const stickers: Sticker[] = [
   makeSticker(99, 149, "망나뇽"),
   makeSticker(100, 150, "뮤츠")
 ];
+
+export const DEFAULT_SERIES_ID = "anniversary-30";
+
+export const stickerSeries: StickerSeries[] = [
+  {
+    id: "anniversary-30",
+    title: "2026 Since 1996 30주년",
+    shortTitle: "30주년",
+    total: 100,
+    verification: "official",
+    note: "현재 체크리스트에 입력된 100종 시리즈입니다.",
+    stickers: anniversary30Stickers
+  },
+  {
+    id: "kanto-2022",
+    title: "2022 관동",
+    shortTitle: "관동",
+    total: 159,
+    verification: "official",
+    note: "돌아온 포켓몬빵 1차 라인업입니다.",
+    stickers: []
+  },
+  {
+    id: "johto-2022",
+    title: "2022 성도",
+    shortTitle: "성도",
+    total: 116,
+    verification: "official",
+    note: "2세대 포켓몬 추가 라인업입니다.",
+    stickers: []
+  },
+  {
+    id: "halloween-2022",
+    title: "2022 할로윈 야광",
+    shortTitle: "할로윈",
+    total: 27,
+    verification: "checking",
+    note: "야광 콘셉트 한정 라인업으로 추가 검증 중입니다.",
+    stickers: []
+  },
+  {
+    id: "winter-2022",
+    title: "2022/2023 윈터 왕띠부씰",
+    shortTitle: "윈터",
+    total: 30,
+    verification: "checking",
+    note: "왕띠부씰 계열로 일반 띠부씰과 별도 관리 예정입니다.",
+    stickers: []
+  },
+  {
+    id: "lovely-2023",
+    title: "2023 러블리",
+    shortTitle: "러블리",
+    total: 30,
+    verification: "official",
+    note: "러블리 콘셉트 한정 라인업입니다.",
+    stickers: []
+  },
+  {
+    id: "paldea-arceus-2023",
+    title: "2023 팔데아/아르세우스",
+    shortTitle: "팔데아",
+    total: 55,
+    verification: "official",
+    note: "신규 세대 중심 추가 라인업입니다.",
+    stickers: []
+  },
+  {
+    id: "new-season-1-2024",
+    title: "2024 NEW 시즌1",
+    shortTitle: "NEW 1",
+    total: 139,
+    verification: "checking",
+    note: "수집가 도감 기준으로 교차 검증 중입니다.",
+    stickers: []
+  },
+  {
+    id: "new-season-2-2024",
+    title: "2024 NEW 시즌2",
+    shortTitle: "NEW 2",
+    total: 163,
+    verification: "checking",
+    note: "수집가 도감 기준으로 교차 검증 중입니다.",
+    stickers: []
+  },
+  {
+    id: "mega-2024",
+    title: "2024 메가진화",
+    shortTitle: "메가진화",
+    total: 53,
+    verification: "checking",
+    note: "이벤트/한정 성격을 확인 중입니다.",
+    stickers: []
+  },
+  {
+    id: "new-season-3-2024",
+    title: "2024 NEW 시즌3",
+    shortTitle: "NEW 3",
+    total: 154,
+    verification: "checking",
+    note: "수집가 도감 기준으로 교차 검증 중입니다.",
+    stickers: []
+  },
+  {
+    id: "pixel-art-2024",
+    title: "2024 픽셀아트",
+    shortTitle: "픽셀",
+    total: 151,
+    verification: "checked",
+    note: "1세대 픽셀아트 스타일 라인업입니다.",
+    stickers: []
+  },
+  {
+    id: "pokepeace-2025",
+    title: "2025 포켓피스",
+    shortTitle: "포켓피스",
+    total: 114,
+    verification: "checking",
+    note: "별도 콘셉트 시리즈로 분리 예정입니다.",
+    stickers: []
+  },
+  {
+    id: "new-season-4-2025",
+    title: "2025 NEW 시즌4",
+    shortTitle: "NEW 4",
+    total: 168,
+    verification: "checking",
+    note: "수집가 도감 기준으로 교차 검증 중입니다.",
+    stickers: []
+  },
+  {
+    id: "new-season-5-2026",
+    title: "2026 NEW 시즌5",
+    shortTitle: "NEW 5",
+    total: 150,
+    verification: "checking",
+    note: "수집가 도감 기준으로 교차 검증 중입니다.",
+    stickers: []
+  }
+];
+
+export const stickers = anniversary30Stickers;

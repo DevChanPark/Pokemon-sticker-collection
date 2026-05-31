@@ -170,6 +170,72 @@ h1 {
   backdrop-filter: blur(14px);
 }
 
+.series-picker {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 10px;
+  scroll-margin-top: 24px;
+}
+
+.series-picker .section-heading {
+  margin-bottom: 0;
+}
+
+.series-tabs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(150px, 1fr);
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.series-tab {
+  display: grid;
+  gap: 5px;
+  min-height: 92px;
+  border: 1px solid #d8deea;
+  border-radius: 8px;
+  padding: 12px;
+  color: #526078;
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(23, 32, 51, 0.05);
+}
+
+.series-tab:hover {
+  border-color: #93c5fd;
+}
+
+.series-tab.is-active {
+  border-color: #1d4ed8;
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.18), 0 8px 24px rgba(23, 32, 51, 0.06);
+}
+
+.series-tab.is-pending {
+  background: #fbfcff;
+}
+
+.series-tab__name {
+  color: #111827;
+  font-size: 0.96rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.series-tab__meta,
+.series-tab__progress {
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.series-tab__progress {
+  color: #1d4ed8;
+}
+
 .search {
   display: grid;
   gap: 6px;
@@ -244,6 +310,38 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(174px, 1fr));
   gap: 14px;
+}
+
+.collection-grid--empty {
+  grid-template-columns: 1fr;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  border: 1px dashed #cfd7e6;
+  border-radius: 8px;
+  padding: 28px;
+  background: rgba(255, 255, 255, 0.72);
+  text-align: center;
+}
+
+.empty-state h2 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.empty-state p {
+  max-width: 520px;
+  margin: 0;
+  color: #526078;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.55;
 }
 
 .content-section {
@@ -601,6 +699,10 @@ h1 {
 
   .toolbar {
     position: static;
+  }
+
+  .series-tabs {
+    grid-auto-columns: minmax(136px, 78%);
   }
 
   .collection-grid {
