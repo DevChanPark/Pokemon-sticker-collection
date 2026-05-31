@@ -1,6 +1,7 @@
 /**
  * 포켓몬 띠부씰 시리즈별 체크리스트 데이터입니다.
- * 실제 씰 사진 대신 PokeAPI 공식 아트워크를 연결하고, 단체컷/스페셜 컷은 placeholder 이미지를 사용합니다.
+ * 실제 도안 이미지가 준비된 시리즈는 public/stickers/{seriesId}/{order}.webp를 쓰고,
+ * 나머지는 PokeAPI 공식 아트워크나 placeholder 이미지를 사용합니다.
  */
 export type Sticker = {
   readonly order: number;
@@ -26,6 +27,27 @@ type StickerEntry = readonly [dexNo: number, name: string];
 const makeArtworkUrl = (dexNo: number): string =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dexNo}.png`;
 
+const seriesWithStickerImages = new Set([
+  "kanto-2022",
+  "johto-2022",
+  "halloween-2022",
+  "winter-2022",
+  "lovely-2023",
+  "paldea-arceus-2023",
+  "new-season-1-2024",
+  "new-season-2-2024",
+  "mega-2024",
+  "pixel-art-2024",
+]);
+
+const makeStickerImageUrl = (seriesId: string | undefined, order: number, dexNo: number, name: string): string => {
+  if (seriesId && seriesWithStickerImages.has(seriesId)) {
+    return `${import.meta.env.BASE_URL}stickers/${seriesId}/${String(order).padStart(3, "0")}.webp`;
+  }
+
+  return dexNo > 0 ? makeArtworkUrl(dexNo) : makePlaceholderUrl(name);
+};
+
 const makePlaceholderUrl = (name: string): string => {
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
@@ -40,15 +62,15 @@ const makePlaceholderUrl = (name: string): string => {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 };
 
-const makeSticker = (order: number, dexNo: number, name: string): Sticker => ({
+const makeSticker = (order: number, dexNo: number, name: string, seriesId?: string): Sticker => ({
   order,
   dexNo,
   name,
-  imageUrl: dexNo > 0 ? makeArtworkUrl(dexNo) : makePlaceholderUrl(name),
+  imageUrl: makeStickerImageUrl(seriesId, order, dexNo, name),
 });
 
-const makeStickerList = (entries: readonly StickerEntry[]): Sticker[] =>
-  entries.map(([dexNo, name], index) => makeSticker(index + 1, dexNo, name));
+const makeStickerList = (entries: readonly StickerEntry[], seriesId?: string): Sticker[] =>
+  entries.map(([dexNo, name], index) => makeSticker(index + 1, dexNo, name, seriesId));
 
 const anniversary30Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -313,7 +335,7 @@ const kanto2022Stickers: Sticker[] = makeStickerList([
   [150, "뮤츠"],
   [151, "뮤"],
   [151, "뮤"],
-]);
+], "kanto-2022");
 
 const johto2022Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -432,7 +454,7 @@ const johto2022Stickers: Sticker[] = makeStickerList([
   [250, "칠색조"],
   [251, "세레비"],
   [251, "세레비"],
-]);
+], "johto-2022");
 
 const halloween2022Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -462,7 +484,7 @@ const halloween2022Stickers: Sticker[] = makeStickerList([
   [0, "할로윈 스페셜 25"],
   [0, "할로윈 스페셜 26"],
   [0, "할로윈 스페셜 27"],
-]);
+], "halloween-2022");
 
 const winter2022Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -495,7 +517,7 @@ const winter2022Stickers: Sticker[] = makeStickerList([
   [0, "윈터 스페셜 28"],
   [0, "윈터 스페셜 29"],
   [0, "윈터 스페셜 30"],
-]);
+], "winter-2022");
 
 const lovely2023Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -528,7 +550,7 @@ const lovely2023Stickers: Sticker[] = makeStickerList([
   [0, "러블리 스페셜 28"],
   [0, "러블리 스페셜 29"],
   [10, "캐터피"],
-]);
+], "lovely-2023");
 
 const paldeaArceus2023Stickers: Sticker[] = makeStickerList([
   [906, "나오하"],
@@ -586,7 +608,7 @@ const paldeaArceus2023Stickers: Sticker[] = makeStickerList([
   [484, "펄기아"],
   [487, "기라티나"],
   [493, "아르세우스"],
-]);
+], "paldea-arceus-2023");
 
 const newSeason1Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -728,7 +750,7 @@ const newSeason1Stickers: Sticker[] = makeStickerList([
   [383, "그란돈"],
   [384, "레쿠쟈"],
   [384, "검은 레쿠쟈"],
-]);
+], "new-season-1-2024");
 
 const newSeason2Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -894,7 +916,7 @@ const newSeason2Stickers: Sticker[] = makeStickerList([
   [7, "꼬부기 소방대"],
   [8, "어니부기 소방대"],
   [9, "거북왕 소방대"],
-]);
+], "new-season-2-2024");
 
 const mega2024Stickers: Sticker[] = makeStickerList([
   [3, "메가이상해꽃"],
@@ -950,7 +972,7 @@ const mega2024Stickers: Sticker[] = makeStickerList([
   [150, "메가뮤츠X"],
   [150, "메가뮤츠Y"],
   [384, "메가레쿠쟈"],
-]);
+], "mega-2024");
 
 const newSeason3Stickers: Sticker[] = makeStickerList([
   [25, "피카츄"],
@@ -1261,7 +1283,7 @@ const pixelArt2024Stickers: Sticker[] = makeStickerList([
   [149, "망나뇽"],
   [150, "뮤츠"],
   [151, "뮤"],
-]);
+], "pixel-art-2024");
 
 const pokepeace2025Stickers: Sticker[] = makeStickerList([
   [25, "피카츄"],

@@ -309,13 +309,16 @@ function createStickerCard(sticker: Sticker): string {
   const duplicateClass = status.duplicateCount > 0 ? " has-duplicate" : "";
   const damagedClass = status.damagedCount > 0 ? " has-damage" : "";
   const ownedChecked = status.owned ? "checked" : "";
+  const isActualStickerImage = sticker.imageUrl.includes("/stickers/");
+  const imageWrapClass = isActualStickerImage ? " sticker-card__image-wrap--actual" : "";
+  const imageClass = isActualStickerImage ? " sticker-card__image--actual" : "";
   const badges = createStatusBadges(status);
 
   return `
     <article class="sticker-card${ownedClass}${duplicateClass}${damagedClass}">
-      <div class="sticker-card__image-wrap">
+      <div class="sticker-card__image-wrap${imageWrapClass}">
         <img
-          class="sticker-card__image"
+          class="sticker-card__image${imageClass}"
           src="${sticker.imageUrl}"
           alt="${sticker.name} 띠부씰 이미지"
           loading="lazy"
