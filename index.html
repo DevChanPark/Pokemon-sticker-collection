@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Since 1996 포켓몬 띠부씰 컬렉션</title>
-    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-A12FJ_kM.js"></script>
-    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-BuhHtNYk.css">
+    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-kYP0FHtQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-WOSckYwK.css">
   </head>
   <body>
     <main class="app-shell">
@@ -15,7 +15,7 @@
           <h1>포켓몬 띠부씰 컬렉션</h1>
           <nav class="site-nav" aria-label="페이지 바로가기">
             <a href="#collection-grid">체크리스트</a>
-            <a href="#series-guide">시리즈</a>
+            <a href="#series-picker">시리즈</a>
             <a href="#collector-guide">보관 가이드</a>
             <a href="#site-info">운영 안내</a>
           </nav>
@@ -25,7 +25,7 @@
           <div class="stats__main">
             <span class="stats__label">보관</span>
             <strong id="owned-count">0</strong>
-            <span class="stats__total">/ 100</span>
+            <span class="stats__total">/ <span id="series-total-count">100</span></span>
           </div>
           <div class="progress" aria-hidden="true">
             <span id="progress-bar"></span>
@@ -37,6 +37,15 @@
           </div>
         </section>
       </header>
+
+      <section class="series-picker" id="series-picker" aria-labelledby="series-picker-title">
+        <div class="section-heading">
+          <p class="eyebrow">Series</p>
+          <h2 id="series-picker-title">시리즈별 체크리스트</h2>
+        </div>
+
+        <div class="series-tabs" id="series-tabs" role="tablist" aria-label="띠부씰 시리즈 선택"></div>
+      </section>
 
       <section class="toolbar" aria-label="검색과 필터">
         <label class="search">
@@ -52,7 +61,7 @@
           <button type="button" class="segment" data-filter="damaged">하자</button>
         </div>
 
-        <button type="button" class="ghost-button" id="clear-button">초기화</button>
+        <button type="button" class="ghost-button" id="clear-button">현재 시리즈 초기화</button>
       </section>
 
       <section class="collection-grid" id="collection-grid" aria-label="띠부씰 목록"></section>
@@ -73,50 +82,7 @@
                 <th scope="col">메모</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <th scope="row">2022 관동</th>
-                <td>159종</td>
-                <td><span class="source-pill source-pill--official">공식 확인</span></td>
-                <td>돌아온 포켓몬빵 1차 라인업</td>
-              </tr>
-              <tr>
-                <th scope="row">2022 성도</th>
-                <td>116종</td>
-                <td><span class="source-pill source-pill--official">공식 확인</span></td>
-                <td>2세대 포켓몬 추가 라인업</td>
-              </tr>
-              <tr>
-                <th scope="row">2023 러블리</th>
-                <td>30종</td>
-                <td><span class="source-pill source-pill--official">공식 확인</span></td>
-                <td>러블리 콘셉트 한정 라인업</td>
-              </tr>
-              <tr>
-                <th scope="row">2023 팔데아/아르세우스</th>
-                <td>55종</td>
-                <td><span class="source-pill source-pill--official">공식 확인</span></td>
-                <td>신규 세대 중심 추가 라인업</td>
-              </tr>
-              <tr>
-                <th scope="row">2024 픽셀아트</th>
-                <td>151종</td>
-                <td><span class="source-pill source-pill--checked">교차 확인</span></td>
-                <td>1세대 픽셀아트 스타일 라인업</td>
-              </tr>
-              <tr>
-                <th scope="row">2025 포켓피스</th>
-                <td>114종</td>
-                <td><span class="source-pill source-pill--checking">검증 중</span></td>
-                <td>별도 콘셉트 시리즈로 분리 예정</td>
-              </tr>
-              <tr>
-                <th scope="row">2026 30주년</th>
-                <td>100종</td>
-                <td><span class="source-pill source-pill--official">공식 확인</span></td>
-                <td>Since 1996 에디션</td>
-              </tr>
-            </tbody>
+            <tbody id="series-guide-body"></tbody>
           </table>
         </div>
       </section>
