@@ -9,9 +9,15 @@
   <body>
     <main class="app-shell">
       <header class="topbar">
-        <div>
+        <div class="brand-block">
           <p class="eyebrow">Since 1996</p>
           <h1>포켓몬 띠부씰 컬렉션</h1>
+          <nav class="site-nav" aria-label="페이지 바로가기">
+            <a href="#collection-grid">체크리스트</a>
+            <a href="#series-guide">시리즈</a>
+            <a href="#collector-guide">보관 가이드</a>
+            <a href="#site-info">운영 안내</a>
+          </nav>
         </div>
 
         <section class="stats" aria-label="수집 현황">
@@ -49,6 +55,117 @@
       </section>
 
       <section class="collection-grid" id="collection-grid" aria-label="띠부씰 목록"></section>
+
+      <section class="content-section" id="series-guide" aria-labelledby="series-guide-title">
+        <div class="section-heading">
+          <p class="eyebrow">Collector Index</p>
+          <h2 id="series-guide-title">띠부씰 시리즈 정리</h2>
+        </div>
+
+        <div class="series-table-wrap">
+          <table class="series-table">
+            <thead>
+              <tr>
+                <th scope="col">시리즈</th>
+                <th scope="col">수량</th>
+                <th scope="col">상태</th>
+                <th scope="col">메모</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">2022 관동</th>
+                <td>159종</td>
+                <td><span class="source-pill source-pill--official">공식 확인</span></td>
+                <td>돌아온 포켓몬빵 1차 라인업</td>
+              </tr>
+              <tr>
+                <th scope="row">2022 성도</th>
+                <td>116종</td>
+                <td><span class="source-pill source-pill--official">공식 확인</span></td>
+                <td>2세대 포켓몬 추가 라인업</td>
+              </tr>
+              <tr>
+                <th scope="row">2023 러블리</th>
+                <td>30종</td>
+                <td><span class="source-pill source-pill--official">공식 확인</span></td>
+                <td>러블리 콘셉트 한정 라인업</td>
+              </tr>
+              <tr>
+                <th scope="row">2023 팔데아/아르세우스</th>
+                <td>55종</td>
+                <td><span class="source-pill source-pill--official">공식 확인</span></td>
+                <td>신규 세대 중심 추가 라인업</td>
+              </tr>
+              <tr>
+                <th scope="row">2024 픽셀아트</th>
+                <td>151종</td>
+                <td><span class="source-pill source-pill--checked">교차 확인</span></td>
+                <td>1세대 픽셀아트 스타일 라인업</td>
+              </tr>
+              <tr>
+                <th scope="row">2025 포켓피스</th>
+                <td>114종</td>
+                <td><span class="source-pill source-pill--checking">검증 중</span></td>
+                <td>별도 콘셉트 시리즈로 분리 예정</td>
+              </tr>
+              <tr>
+                <th scope="row">2026 30주년</th>
+                <td>100종</td>
+                <td><span class="source-pill source-pill--official">공식 확인</span></td>
+                <td>Since 1996 에디션</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-section guide-grid" id="collector-guide" aria-labelledby="collector-guide-title">
+        <div class="section-heading">
+          <p class="eyebrow">Storage Notes</p>
+          <h2 id="collector-guide-title">수집과 보관 가이드</h2>
+        </div>
+
+        <article class="guide-item">
+          <h3>소장용 분리</h3>
+          <p>깨끗한 1장은 소장용으로 따로 잡고, 추가 장수는 중복이나 하자로 기록하면 실제 보유량을 보기 쉽습니다.</p>
+        </article>
+        <article class="guide-item">
+          <h3>하자 기준</h3>
+          <p>찍힘, 접힘, 인쇄 밀림, 코팅 손상처럼 교환 가치가 달라질 수 있는 상태는 하자로 따로 표시해두는 편이 좋습니다.</p>
+        </article>
+        <article class="guide-item">
+          <h3>보관 용품</h3>
+          <p>슬리브, 속지, 바인더, 방습제를 함께 쓰면 장기 보관 중 휨과 오염을 줄일 수 있습니다.</p>
+        </article>
+      </section>
+
+      <section class="content-section site-info" id="site-info" aria-labelledby="site-info-title">
+        <div class="section-heading">
+          <p class="eyebrow">Site Notice</p>
+          <h2 id="site-info-title">운영 안내</h2>
+        </div>
+
+        <div class="notice-grid">
+          <article class="notice-item">
+            <h3>비공식 수집 도구</h3>
+            <p>이 사이트는 개인 수집 기록을 돕기 위한 비공식 팬 제작 도구입니다. 포켓몬 및 관련 이미지는 각 권리자에게 있습니다.</p>
+          </article>
+          <article class="notice-item">
+            <h3>저장 방식</h3>
+            <p>체크한 내용은 현재 브라우저의 localStorage에 저장됩니다. 다른 기기와 동기화하려면 이후 계정 또는 공유 코드 기능이 필요합니다.</p>
+          </article>
+          <article class="notice-item">
+            <h3>광고와 제휴</h3>
+            <p>향후 광고나 제휴 링크가 포함될 수 있으며, 보관용품 추천 링크가 들어가는 경우 해당 사실을 페이지에 명확히 표시합니다.</p>
+          </article>
+          <article class="notice-item">
+            <h3>문의와 삭제 요청</h3>
+            <p>자료 오류, 이미지 삭제 요청, 제휴 문의는 GitHub 저장소 이슈로 남겨주세요.</p>
+            <a href="https://github.com/DevChanPark/Pokemon-sticker-collection/issues" target="_blank" rel="noreferrer">GitHub Issues</a>
+          </article>
+        </div>
+      </section>
     </main>
 
     <script type="module" src="/src/main.ts"></script>
