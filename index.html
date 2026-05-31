@@ -4,134 +4,149 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Since 1996 포켓몬 띠부씰 컬렉션</title>
-    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-kYP0FHtQ.js"></script>
-    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-WOSckYwK.css">
+    <script type="module" crossorigin src="/Pokemon-sticker-collection/assets/index-BOLmgN7i.js"></script>
+    <link rel="stylesheet" crossorigin href="/Pokemon-sticker-collection/assets/index-B0HizaNC.css">
   </head>
   <body>
     <main class="app-shell">
-      <header class="topbar">
-        <div class="brand-block">
-          <p class="eyebrow">Since 1996</p>
-          <h1>포켓몬 띠부씰 컬렉션</h1>
-          <nav class="site-nav" aria-label="페이지 바로가기">
-            <a href="#collection-grid">체크리스트</a>
-            <a href="#series-picker">시리즈</a>
+      <section class="home-view" id="home-view" aria-labelledby="home-title">
+        <header class="home-hero">
+          <div>
+            <p class="eyebrow">Since 1996</p>
+            <h1 id="home-title">포켓몬 띠부씰 컬렉션</h1>
+            <p class="home-hero__copy">시리즈를 고르고 보관, 중복, 하자 수량을 따로 기록하세요.</p>
+          </div>
+
+          <nav class="site-nav" aria-label="홈 바로가기">
+            <a href="#home-series">시리즈 선택</a>
+            <a href="#series-guide">시리즈 정리</a>
             <a href="#collector-guide">보관 가이드</a>
             <a href="#site-info">운영 안내</a>
           </nav>
-        </div>
+        </header>
 
-        <section class="stats" aria-label="수집 현황">
-          <div class="stats__main">
-            <span class="stats__label">보관</span>
-            <strong id="owned-count">0</strong>
-            <span class="stats__total">/ <span id="series-total-count">100</span></span>
+        <section class="home-series" id="home-series" aria-labelledby="home-series-title">
+          <div class="section-heading">
+            <p class="eyebrow">Series</p>
+            <h2 id="home-series-title">시리즈 선택</h2>
           </div>
-          <div class="progress" aria-hidden="true">
-            <span id="progress-bar"></span>
+
+          <div class="home-series-grid" id="home-series-grid" aria-label="띠부씰 시리즈 목록"></div>
+        </section>
+
+        <section class="content-section" id="series-guide" aria-labelledby="series-guide-title">
+          <div class="section-heading">
+            <p class="eyebrow">Collector Index</p>
+            <h2 id="series-guide-title">띠부씰 시리즈 정리</h2>
           </div>
-          <div class="stats__details" aria-label="추가 표시 현황">
-            <span>총 보유 <strong id="total-count">0</strong>개</span>
-            <span>중복 <strong id="duplicate-count">0</strong>개</span>
-            <span>하자 <strong id="damaged-count">0</strong>개</span>
+
+          <div class="series-table-wrap">
+            <table class="series-table">
+              <thead>
+                <tr>
+                  <th scope="col">시리즈</th>
+                  <th scope="col">수량</th>
+                  <th scope="col">상태</th>
+                  <th scope="col">메모</th>
+                </tr>
+              </thead>
+              <tbody id="series-guide-body"></tbody>
+            </table>
           </div>
         </section>
-      </header>
 
-      <section class="series-picker" id="series-picker" aria-labelledby="series-picker-title">
-        <div class="section-heading">
-          <p class="eyebrow">Series</p>
-          <h2 id="series-picker-title">시리즈별 체크리스트</h2>
-        </div>
+        <section class="content-section guide-grid" id="collector-guide" aria-labelledby="collector-guide-title">
+          <div class="section-heading">
+            <p class="eyebrow">Storage Notes</p>
+            <h2 id="collector-guide-title">수집과 보관 가이드</h2>
+          </div>
 
-        <div class="series-tabs" id="series-tabs" role="tablist" aria-label="띠부씰 시리즈 선택"></div>
+          <article class="guide-item">
+            <h3>소장용 분리</h3>
+            <p>깨끗한 1장은 소장용으로 따로 잡고, 추가 장수는 중복이나 하자로 기록하면 실제 보유량을 보기 쉽습니다.</p>
+          </article>
+          <article class="guide-item">
+            <h3>하자 기준</h3>
+            <p>찍힘, 접힘, 인쇄 밀림, 코팅 손상처럼 교환 가치가 달라질 수 있는 상태는 하자로 따로 표시해두는 편이 좋습니다.</p>
+          </article>
+          <article class="guide-item">
+            <h3>보관 용품</h3>
+            <p>슬리브, 속지, 바인더, 방습제를 함께 쓰면 장기 보관 중 휨과 오염을 줄일 수 있습니다.</p>
+          </article>
+        </section>
+
+        <section class="content-section site-info" id="site-info" aria-labelledby="site-info-title">
+          <div class="section-heading">
+            <p class="eyebrow">Site Notice</p>
+            <h2 id="site-info-title">운영 안내</h2>
+          </div>
+
+          <div class="notice-grid">
+            <article class="notice-item">
+              <h3>비공식 수집 도구</h3>
+              <p>이 사이트는 개인 수집 기록을 돕기 위한 비공식 팬 제작 도구입니다. 포켓몬 및 관련 이미지는 각 권리자에게 있습니다.</p>
+            </article>
+            <article class="notice-item">
+              <h3>저장 방식</h3>
+              <p>체크한 내용은 현재 브라우저의 localStorage에 저장됩니다. 다른 기기와 동기화하려면 이후 계정 또는 공유 코드 기능이 필요합니다.</p>
+            </article>
+            <article class="notice-item">
+              <h3>광고와 제휴</h3>
+              <p>향후 광고나 제휴 링크가 포함될 수 있으며, 보관용품 추천 링크가 들어가는 경우 해당 사실을 페이지에 명확히 표시합니다.</p>
+            </article>
+            <article class="notice-item">
+              <h3>문의와 삭제 요청</h3>
+              <p>자료 오류, 이미지 삭제 요청, 제휴 문의는 GitHub 저장소 이슈로 남겨주세요.</p>
+              <a href="https://github.com/DevChanPark/Pokemon-sticker-collection/issues" target="_blank" rel="noreferrer">GitHub Issues</a>
+            </article>
+          </div>
+        </section>
       </section>
 
-      <section class="toolbar" aria-label="검색과 필터">
-        <label class="search">
-          <span>검색</span>
-          <input id="search-input" type="search" placeholder="이름, 도감 번호, 순번" autocomplete="off" />
-        </label>
+      <section class="collection-view" id="collection-view" aria-labelledby="collection-title" hidden>
+        <header class="topbar">
+          <div class="brand-block">
+            <button type="button" class="back-button" id="home-button">홈</button>
+            <p class="eyebrow">Checklist</p>
+            <h1 id="collection-title">포켓몬 띠부씰 컬렉션</h1>
+            <p class="collection-note" id="collection-note"></p>
+          </div>
 
-        <div class="segments" role="group" aria-label="보관 상태 필터">
-          <button type="button" class="segment is-active" data-filter="all">전체</button>
-          <button type="button" class="segment" data-filter="owned">보관</button>
-          <button type="button" class="segment" data-filter="missing">미보관</button>
-          <button type="button" class="segment" data-filter="duplicate">중복</button>
-          <button type="button" class="segment" data-filter="damaged">하자</button>
-        </div>
+          <section class="stats" aria-label="수집 현황">
+            <div class="stats__main">
+              <span class="stats__label">보관</span>
+              <strong id="owned-count">0</strong>
+              <span class="stats__total">/ <span id="series-total-count">100</span></span>
+            </div>
+            <div class="progress" aria-hidden="true">
+              <span id="progress-bar"></span>
+            </div>
+            <div class="stats__details" aria-label="추가 표시 현황">
+              <span>총 보유 <strong id="total-count">0</strong>개</span>
+              <span>중복 <strong id="duplicate-count">0</strong>개</span>
+              <span>하자 <strong id="damaged-count">0</strong>개</span>
+            </div>
+          </section>
+        </header>
 
-        <button type="button" class="ghost-button" id="clear-button">현재 시리즈 초기화</button>
-      </section>
+        <section class="toolbar" aria-label="검색과 필터">
+          <label class="search">
+            <span>검색</span>
+            <input id="search-input" type="search" placeholder="이름, 도감 번호, 순번" autocomplete="off" />
+          </label>
 
-      <section class="collection-grid" id="collection-grid" aria-label="띠부씰 목록"></section>
+          <div class="segments" role="group" aria-label="보관 상태 필터">
+            <button type="button" class="segment is-active" data-filter="all">전체</button>
+            <button type="button" class="segment" data-filter="owned">보관</button>
+            <button type="button" class="segment" data-filter="missing">미보관</button>
+            <button type="button" class="segment" data-filter="duplicate">중복</button>
+            <button type="button" class="segment" data-filter="damaged">하자</button>
+          </div>
 
-      <section class="content-section" id="series-guide" aria-labelledby="series-guide-title">
-        <div class="section-heading">
-          <p class="eyebrow">Collector Index</p>
-          <h2 id="series-guide-title">띠부씰 시리즈 정리</h2>
-        </div>
+          <button type="button" class="ghost-button" id="clear-button">현재 시리즈 초기화</button>
+        </section>
 
-        <div class="series-table-wrap">
-          <table class="series-table">
-            <thead>
-              <tr>
-                <th scope="col">시리즈</th>
-                <th scope="col">수량</th>
-                <th scope="col">상태</th>
-                <th scope="col">메모</th>
-              </tr>
-            </thead>
-            <tbody id="series-guide-body"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="content-section guide-grid" id="collector-guide" aria-labelledby="collector-guide-title">
-        <div class="section-heading">
-          <p class="eyebrow">Storage Notes</p>
-          <h2 id="collector-guide-title">수집과 보관 가이드</h2>
-        </div>
-
-        <article class="guide-item">
-          <h3>소장용 분리</h3>
-          <p>깨끗한 1장은 소장용으로 따로 잡고, 추가 장수는 중복이나 하자로 기록하면 실제 보유량을 보기 쉽습니다.</p>
-        </article>
-        <article class="guide-item">
-          <h3>하자 기준</h3>
-          <p>찍힘, 접힘, 인쇄 밀림, 코팅 손상처럼 교환 가치가 달라질 수 있는 상태는 하자로 따로 표시해두는 편이 좋습니다.</p>
-        </article>
-        <article class="guide-item">
-          <h3>보관 용품</h3>
-          <p>슬리브, 속지, 바인더, 방습제를 함께 쓰면 장기 보관 중 휨과 오염을 줄일 수 있습니다.</p>
-        </article>
-      </section>
-
-      <section class="content-section site-info" id="site-info" aria-labelledby="site-info-title">
-        <div class="section-heading">
-          <p class="eyebrow">Site Notice</p>
-          <h2 id="site-info-title">운영 안내</h2>
-        </div>
-
-        <div class="notice-grid">
-          <article class="notice-item">
-            <h3>비공식 수집 도구</h3>
-            <p>이 사이트는 개인 수집 기록을 돕기 위한 비공식 팬 제작 도구입니다. 포켓몬 및 관련 이미지는 각 권리자에게 있습니다.</p>
-          </article>
-          <article class="notice-item">
-            <h3>저장 방식</h3>
-            <p>체크한 내용은 현재 브라우저의 localStorage에 저장됩니다. 다른 기기와 동기화하려면 이후 계정 또는 공유 코드 기능이 필요합니다.</p>
-          </article>
-          <article class="notice-item">
-            <h3>광고와 제휴</h3>
-            <p>향후 광고나 제휴 링크가 포함될 수 있으며, 보관용품 추천 링크가 들어가는 경우 해당 사실을 페이지에 명확히 표시합니다.</p>
-          </article>
-          <article class="notice-item">
-            <h3>문의와 삭제 요청</h3>
-            <p>자료 오류, 이미지 삭제 요청, 제휴 문의는 GitHub 저장소 이슈로 남겨주세요.</p>
-            <a href="https://github.com/DevChanPark/Pokemon-sticker-collection/issues" target="_blank" rel="noreferrer">GitHub Issues</a>
-          </article>
-        </div>
+        <section class="collection-grid" id="collection-grid" aria-label="띠부씰 목록"></section>
       </section>
     </main>
 
