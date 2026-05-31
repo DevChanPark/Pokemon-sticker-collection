@@ -17,6 +17,7 @@ type StickerStatus = {
 type CountStatusKey = "duplicateCount" | "damagedCount";
 type CollectionState = Record<number, StickerStatus>;
 type SeriesCollectionState = Record<string, CollectionState>;
+type ViewMode = "home" | "collection";
 
 const STORAGE_KEY = "pokemon-sticker-collection-by-series";
 const LEGACY_STORAGE_KEY = "since-1996-pokemon-sticker-collection";
@@ -28,17 +29,24 @@ const appState: {
   selectedSeriesId: string;
   searchTerm: string;
   filterMode: FilterMode;
+  viewMode: ViewMode;
 } = {
   collectionBySeries: loadCollection(),
   selectedSeriesId: loadSelectedSeriesId(),
   searchTerm: "",
-  filterMode: "all"
+  filterMode: "all",
+  viewMode: loadViewMode()
 };
 
+const homeViewElement = requireElement<HTMLElement>("#home-view");
+const collectionViewElement = requireElement<HTMLElement>("#collection-view");
 const gridElement = requireElement<HTMLElement>("#collection-grid");
-const seriesTabsElement = requireElement<HTMLElement>("#series-tabs");
+const homeSeriesGridElement = requireElement<HTMLElement>("#home-series-grid");
 const seriesGuideBodyElement = requireElement<HTMLElement>("#series-guide-body");
 const searchInput = requireElement<HTMLInputElement>("#search-input");
+const homeButton = requireElement<HTMLButtonElement>("#home-button");
+const collectionTitleElement = requireElement<HTMLElement>("#collection-title");
+const collectionNoteElement = requireElement<HTMLElement>("#collection-note");
 const ownedCountElement = requireElement<HTMLElement>("#owned-count");
 const seriesTotalCountElement = requireElement<HTMLElement>("#series-total-count");
 const totalCountElement = requireElement<HTMLElement>("#total-count");
@@ -66,14 +74,14 @@ filterButtons.forEach((button) => {
   });
 });
 
-seriesTabsElement.addEventListener("click", (event) => {
+homeSeriesGridElement.addEventListener("click", (event) => {
   const target = event.target;
 
   if (!(target instanceof Element)) {
     return;
   }
 
-  const button = target.closest("[data-series-id]");
+  const button = target.closest("[data-series-id][data-open-series]");
 
   if (!(button instanceof HTMLButtonElement)) {
     return;
@@ -90,6 +98,17 @@ seriesTabsElement.addEventListener("click", (event) => {
   appState.filterMode = "all";
   searchInput.value = "";
   window.localStorage.setItem(SELECTED_SERIES_KEY, nextSeriesId);
+  setViewMode("collection");
+  render();
+});
+
+homeButton.addEventListener("click", () => {
+  setViewMode("home");
+  render();
+});
+
+window.addEventListener("hashchange", () => {
+  appState.viewMode = loadViewMode();
   render();
 });
 
@@ -167,35 +186,46 @@ gridElement.addEventListener("click", (event) => {
 });
 
 function render(): void {
-  renderSeriesTabs();
+  renderView();
+  renderHomeSeriesGrid();
   renderSeriesGuide();
+  renderCollectionHeader();
   renderStats();
   renderFilterButtons();
   renderGrid(getVisibleStickers());
 }
 
-function renderSeriesTabs(): void {
-  seriesTabsElement.innerHTML = stickerSeries.map(createSeriesTab).join("");
+function renderView(): void {
+  const isHome = appState.viewMode === "home";
+
+  homeViewElement.hidden = !isHome;
+  collectionViewElement.hidden = isHome;
 }
 
-function createSeriesTab(series: StickerSeries): string {
+function renderHomeSeriesGrid(): void {
+  homeSeriesGridElement.innerHTML = stickerSeries.map(createHomeSeriesCard).join("");
+}
+
+function createHomeSeriesCard(series: StickerSeries): string {
   const isActive = series.id === appState.selectedSeriesId;
   const status = getSeriesProgress(series);
   const dataReadyLabel = series.stickers.length > 0 ? "체크 가능" : "데이터 준비중";
   const activeClass = isActive ? " is-active" : "";
   const pendingClass = series.stickers.length === 0 ? " is-pending" : "";
+  const totalOwnedLabel = series.stickers.length > 0 ? `${status.ownedCount} / ${series.total}` : `0 / ${series.total}`;
 
   return `
     <button
       type="button"
-      class="series-tab${activeClass}${pendingClass}"
+      class="home-series-card${activeClass}${pendingClass}"
       data-series-id="${series.id}"
-      role="tab"
-      aria-selected="${String(isActive)}"
+      data-open-series="true"
+      aria-label="${series.title} 체크리스트 열기"
     >
-      <span class="series-tab__name">${series.shortTitle}</span>
-      <span class="series-tab__meta">${series.total}종 · ${dataReadyLabel}</span>
-      <span class="series-tab__progress">${status.ownedCount} / ${series.total}</span>
+      <span class="home-series-card__name">${series.title}</span>
+      <span class="home-series-card__meta">${series.total}종 · ${dataReadyLabel}</span>
+      <span class="home-series-card__progress">${totalOwnedLabel}</span>
+      <span class="home-series-card__note">${series.note}</span>
     </button>
   `;
 }
@@ -233,6 +263,16 @@ function renderStats(): void {
   duplicateCountElement.textContent = String(duplicateCount);
   damagedCountElement.textContent = String(damagedCount);
   progressBarElement.style.width = `${progressPercent}%`;
+}
+
+function renderCollectionHeader(): void {
+  const series = getCurrentSeries();
+
+  collectionTitleElement.textContent = series.title;
+  collectionNoteElement.textContent =
+    series.stickers.length > 0
+      ? `${series.total}종 체크리스트입니다. 보관용 1장과 중복, 하자를 따로 기록할 수 있어요.`
+      : `${series.total}종 시리즈 슬롯입니다. 실제 씰 목록을 채우면 바로 체크할 수 있습니다.`;
 }
 
 function renderFilterButtons(): void {
@@ -494,6 +534,16 @@ function loadSelectedSeriesId(): string {
   }
 
   return DEFAULT_SERIES_ID;
+}
+
+function loadViewMode(): ViewMode {
+  return window.location.hash === "#collection" ? "collection" : "home";
+}
+
+function setViewMode(nextViewMode: ViewMode): void {
+  appState.viewMode = nextViewMode;
+  window.history.replaceState(null, "", nextViewMode === "collection" ? "#collection" : window.location.pathname + window.location.search);
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function loadCollection(): SeriesCollectionState {
