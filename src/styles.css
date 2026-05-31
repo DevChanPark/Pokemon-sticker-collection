@@ -306,6 +306,11 @@ h1 {
   background: #e0f2fe;
 }
 
+.sticker-card__badges .status-badge--total {
+  color: #1f2937;
+  background: #fef3c7;
+}
+
 .sticker-card__badges .status-badge--damaged {
   color: #991b1b;
   background: #fee2e2;

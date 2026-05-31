@@ -44,6 +44,7 @@ const appState: {
 const gridElement = requireElement<HTMLElement>("#collection-grid");
 const searchInput = requireElement<HTMLInputElement>("#search-input");
 const ownedCountElement = requireElement<HTMLElement>("#owned-count");
+const totalCountElement = requireElement<HTMLElement>("#total-count");
 const duplicateCountElement = requireElement<HTMLElement>("#duplicate-count");
 const damagedCountElement = requireElement<HTMLElement>("#damaged-count");
 const progressBarElement = requireElement<HTMLElement>("#progress-bar");
@@ -162,9 +163,11 @@ function renderStats(): void {
     0
   );
   const damagedCount = stickers.reduce((total, sticker) => total + getStickerStatus(sticker.order).damagedCount, 0);
+  const totalCount = stickers.reduce((total, sticker) => total + getTotalStickerCount(getStickerStatus(sticker.order)), 0);
   const progressPercent = Math.round((ownedCount / stickers.length) * 100);
 
   ownedCountElement.textContent = String(ownedCount);
+  totalCountElement.textContent = String(totalCount);
   duplicateCountElement.textContent = String(duplicateCount);
   damagedCountElement.textContent = String(damagedCount);
   progressBarElement.style.width = `${progressPercent}%`;
@@ -257,8 +260,10 @@ function createCountControl(sticker: Sticker, countStatusKey: CountStatusKey, la
 }
 
 function createStatusBadges(status: StickerStatus): string {
+  const totalCount = getTotalStickerCount(status);
   const badges = [
     status.owned ? { className: "status-badge--owned", label: "보관" } : undefined,
+    totalCount > 0 ? { className: "status-badge--total", label: `총 ${formatCount(totalCount)}` } : undefined,
     status.duplicateCount > 0
       ? { className: "status-badge--duplicate", label: `중복 ${formatCount(status.duplicateCount)}` }
       : undefined,
@@ -331,6 +336,10 @@ function createEmptyStatus(): StickerStatus {
     duplicateCount: 0,
     damagedCount: 0
   };
+}
+
+function getTotalStickerCount(status: StickerStatus): number {
+  return (status.owned ? 1 : 0) + status.duplicateCount + status.damagedCount;
 }
 
 function formatCount(value: number): string {
