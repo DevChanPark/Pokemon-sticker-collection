@@ -324,7 +324,7 @@ function createStickerCard(sticker: Sticker): string {
 
       <div class="sticker-card__body">
         <div>
-          <span class="sticker-card__meta">#${padNumber(sticker.order)} · 도감 ${sticker.dexNo}</span>
+          <span class="sticker-card__meta">#${padNumber(sticker.order)} · ${getStickerMetaLabel(sticker)}</span>
           <h2>${sticker.name}</h2>
           ${badges}
         </div>
@@ -510,6 +510,10 @@ function clampStatusCount(value: number): number {
 
 function padNumber(value: number): string {
   return String(value).padStart(2, "0");
+}
+
+function getStickerMetaLabel(sticker: Sticker): string {
+  return sticker.dexNo > 0 ? `도감 ${sticker.dexNo}` : "스페셜";
 }
 
 function isFilterMode(value: string | undefined): value is FilterMode {
