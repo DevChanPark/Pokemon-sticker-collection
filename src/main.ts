@@ -2,8 +2,7 @@ import {
   DEFAULT_SERIES_ID,
   stickerSeries,
   type Sticker,
-  type StickerSeries,
-  type StickerSeriesVerification
+  type StickerSeries
 } from "./stickers";
 
 type FilterMode = "all" | "owned" | "missing" | "duplicate" | "damaged";
@@ -20,8 +19,10 @@ type SeriesCollectionState = Record<string, CollectionState>;
 type ViewMode = "home" | "collection";
 
 const STORAGE_KEY = "pokemon-sticker-collection-by-series";
+const STORAGE_VERSION_KEY = "pokemon-sticker-collection-schema-version";
 const LEGACY_STORAGE_KEY = "since-1996-pokemon-sticker-collection";
 const SELECTED_SERIES_KEY = "pokemon-sticker-collection-selected-series";
+const COLLECTION_SCHEMA_VERSION = "2";
 const MAX_STATUS_COUNT = 99;
 
 const appState: {
@@ -138,11 +139,6 @@ gridElement.addEventListener("change", (event) => {
     owned: target.checked
   };
 
-  if (!target.checked) {
-    nextStatus.duplicateCount = 0;
-    nextStatus.damagedCount = 0;
-  }
-
   setStickerStatus(stickerOrder, nextStatus);
   saveCollection(appState.collectionBySeries);
   render();
@@ -176,10 +172,6 @@ gridElement.addEventListener("click", (event) => {
     [countStatusKey]: clampStatusCount(currentStatus[countStatusKey] + step)
   };
 
-  if (nextStatus.duplicateCount > 0 || nextStatus.damagedCount > 0) {
-    nextStatus.owned = true;
-  }
-
   setStickerStatus(stickerOrder, nextStatus);
   saveCollection(appState.collectionBySeries);
   render();
@@ -203,16 +195,17 @@ function renderView(): void {
 }
 
 function renderHomeSeriesGrid(): void {
-  homeSeriesGridElement.innerHTML = stickerSeries.map(createHomeSeriesCard).join("");
+  homeSeriesGridElement.innerHTML = getSeriesByRelease().map(createHomeSeriesCard).join("");
 }
 
 function createHomeSeriesCard(series: StickerSeries): string {
   const isActive = series.id === appState.selectedSeriesId;
   const status = getSeriesProgress(series);
-  const dataReadyLabel = series.stickers.length > 0 ? "체크 가능" : "데이터 준비중";
   const activeClass = isActive ? " is-active" : "";
   const pendingClass = series.stickers.length === 0 ? " is-pending" : "";
-  const totalOwnedLabel = series.stickers.length > 0 ? `${status.ownedCount} / ${series.total}` : `0 / ${series.total}`;
+  const totalLabel = series.total > 0 ? `${series.total}종` : "수량 검증 중";
+  const totalOwnedLabel = series.stickers.length > 0 ? `${status.ownedCount} / ${series.total}` : "자료 수집 중";
+  const releaseYear = series.releaseDate.slice(0, 4);
 
   return `
     <button
@@ -223,21 +216,19 @@ function createHomeSeriesCard(series: StickerSeries): string {
       aria-label="${series.title} 체크리스트 열기"
     >
       <span class="home-series-card__name">${series.title}</span>
-      <span class="home-series-card__meta">${series.total}종 · ${dataReadyLabel}</span>
+      <span class="home-series-card__meta">${releaseYear} 출시 · ${totalLabel}</span>
       <span class="home-series-card__progress">${totalOwnedLabel}</span>
-      <span class="home-series-card__note">${series.note}</span>
     </button>
   `;
 }
 
 function renderSeriesGuide(): void {
-  seriesGuideBodyElement.innerHTML = stickerSeries
+  seriesGuideBodyElement.innerHTML = getSeriesByRelease()
     .map(
       (series) => `
         <tr>
           <th scope="row">${series.title}</th>
-          <td>${series.total}종</td>
-          <td><span class="source-pill source-pill--${series.verification}">${getVerificationLabel(series.verification)}</span></td>
+          <td>${series.total > 0 ? `${series.total}종` : "검증 중"}</td>
           <td>${series.note}</td>
         </tr>
       `
@@ -258,7 +249,7 @@ function renderStats(): void {
   const progressPercent = series.total > 0 ? Math.round((ownedCount / series.total) * 100) : 0;
 
   ownedCountElement.textContent = String(ownedCount);
-  seriesTotalCountElement.textContent = String(series.total);
+  seriesTotalCountElement.textContent = series.total > 0 ? String(series.total) : "검증 중";
   totalCountElement.textContent = String(totalCount);
   duplicateCountElement.textContent = String(duplicateCount);
   damagedCountElement.textContent = String(damagedCount);
@@ -271,8 +262,10 @@ function renderCollectionHeader(): void {
   collectionTitleElement.textContent = series.title;
   collectionNoteElement.textContent =
     series.stickers.length > 0
-      ? `${series.total}종 체크리스트입니다. 보관용 1장과 중복, 하자를 따로 기록할 수 있어요.`
-      : `${series.total}종 시리즈 슬롯입니다. 실제 씰 목록을 채우면 바로 체크할 수 있습니다.`;
+      ? `${series.total}종 체크리스트입니다. 소장용 1장과 중복, 하자를 따로 기록할 수 있어요.`
+      : series.total > 0
+        ? `${series.total}종 시리즈 슬롯입니다. 실제 씰 목록을 채우면 바로 체크할 수 있습니다.`
+        : "시리즈 슬롯입니다. 전체 수량과 실제 씰 목록을 확인하면 바로 체크할 수 있습니다.";
 }
 
 function renderFilterButtons(): void {
@@ -288,9 +281,14 @@ function renderGrid(visibleStickers: Sticker[]): void {
   gridElement.classList.toggle("collection-grid--empty", visibleStickers.length === 0);
 
   if (series.stickers.length === 0) {
+    const emptyDescription =
+      series.total > 0
+        ? `${series.total}종 시리즈 슬롯은 분리해뒀어요. 씰 목록을 채우면 이 시리즈도 바로 체크할 수 있습니다.`
+        : "시리즈 존재는 먼저 분리해뒀고, 전체 수량과 도안 목록은 검증한 뒤 체크리스트로 채우면 됩니다.";
+
     gridElement.innerHTML = createEmptyState(
       `${series.title} 데이터 준비 중`,
-      `${series.total}종 시리즈 슬롯은 분리해뒀어요. 씰 목록을 채우면 이 시리즈도 바로 체크할 수 있습니다.`
+      emptyDescription
     );
     return;
   }
@@ -334,7 +332,7 @@ function createStickerCard(sticker: Sticker): string {
 
         <div class="status-toggles" aria-label="${sticker.name} 상태 표시">
           <label class="status-toggle status-toggle--owned">
-            <span>보관</span>
+            <span>소장</span>
             <input type="checkbox" data-order="${sticker.order}" data-status="owned" ${ownedChecked} />
           </label>
           ${createCountControl(sticker, "duplicateCount", "중복", status.duplicateCount)}
@@ -379,7 +377,7 @@ function createCountControl(sticker: Sticker, countStatusKey: CountStatusKey, la
 function createStatusBadges(status: StickerStatus): string {
   const totalCount = getTotalStickerCount(status);
   const badges = [
-    status.owned ? { className: "status-badge--owned", label: "보관" } : undefined,
+    status.owned ? { className: "status-badge--owned", label: "소장" } : undefined,
     totalCount > 0 ? { className: "status-badge--total", label: `총 ${formatCount(totalCount)}` } : undefined,
     status.duplicateCount > 0
       ? { className: "status-badge--duplicate", label: `중복 ${formatCount(status.duplicateCount)}` }
@@ -455,6 +453,10 @@ function getSeriesById(seriesId: string): StickerSeries | undefined {
   return stickerSeries.find((series) => series.id === seriesId);
 }
 
+function getSeriesByRelease(): StickerSeries[] {
+  return [...stickerSeries].sort((first, second) => first.releaseDate.localeCompare(second.releaseDate));
+}
+
 function isOwned(stickerOrder: number): boolean {
   return getStickerStatus(stickerOrder).owned;
 }
@@ -465,13 +467,13 @@ function getStickerStatus(stickerOrder: number): StickerStatus {
 
 function setStickerStatus(stickerOrder: number, nextStatus: StickerStatus): void {
   const normalizedStatus = {
-    owned: nextStatus.owned || nextStatus.duplicateCount > 0 || nextStatus.damagedCount > 0,
+    owned: nextStatus.owned,
     duplicateCount: clampStatusCount(nextStatus.duplicateCount),
     damagedCount: clampStatusCount(nextStatus.damagedCount)
   };
   const currentSeriesState = getCurrentSeriesState();
 
-  if (!normalizedStatus.owned) {
+  if (!hasAnyStatus(normalizedStatus)) {
     delete currentSeriesState[stickerOrder];
     return;
   }
@@ -491,16 +493,12 @@ function getTotalStickerCount(status: StickerStatus): number {
   return (status.owned ? 1 : 0) + status.duplicateCount + status.damagedCount;
 }
 
-function formatCount(value: number): string {
-  return `${value}개`;
+function hasAnyStatus(status: StickerStatus): boolean {
+  return status.owned || status.duplicateCount > 0 || status.damagedCount > 0;
 }
 
-function getVerificationLabel(verification: StickerSeriesVerification): string {
-  if (verification === "official") {
-    return "공식 확인";
-  }
-
-  return verification === "checked" ? "교차 확인" : "검증 중";
+function formatCount(value: number): string {
+  return `${value}개`;
 }
 
 function clampStatusCount(value: number): number {
@@ -558,7 +556,14 @@ function loadCollection(): SeriesCollectionState {
 
   if (savedValue) {
     try {
-      return parseSeriesCollectionState(JSON.parse(savedValue));
+      const shouldMigrateAutoOwned = window.localStorage.getItem(STORAGE_VERSION_KEY) !== COLLECTION_SCHEMA_VERSION;
+      const nextCollection = parseSeriesCollectionState(JSON.parse(savedValue), shouldMigrateAutoOwned);
+
+      if (shouldMigrateAutoOwned) {
+        saveCollection(nextCollection);
+      }
+
+      return nextCollection;
     } catch {
       return {};
     }
@@ -571,8 +576,16 @@ function loadCollection(): SeriesCollectionState {
   }
 
   try {
-    const legacyCollection = parseCollectionState(JSON.parse(legacyValue));
-    return Object.keys(legacyCollection).length > 0 ? { [DEFAULT_SERIES_ID]: legacyCollection } : {};
+    const legacyCollection = parseCollectionState(JSON.parse(legacyValue), true);
+    const nextCollection: SeriesCollectionState = {};
+
+    if (Object.keys(legacyCollection).length > 0) {
+      nextCollection[DEFAULT_SERIES_ID] = legacyCollection;
+    }
+
+    saveCollection(nextCollection);
+
+    return nextCollection;
   } catch {
     return {};
   }
@@ -580,9 +593,10 @@ function loadCollection(): SeriesCollectionState {
 
 function saveCollection(nextState: SeriesCollectionState): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+  window.localStorage.setItem(STORAGE_VERSION_KEY, COLLECTION_SCHEMA_VERSION);
 }
 
-function parseSeriesCollectionState(value: unknown): SeriesCollectionState {
+function parseSeriesCollectionState(value: unknown, shouldMigrateAutoOwned: boolean): SeriesCollectionState {
   if (!isRecord(value)) {
     return {};
   }
@@ -594,7 +608,7 @@ function parseSeriesCollectionState(value: unknown): SeriesCollectionState {
       continue;
     }
 
-    const collectionState = parseCollectionState(collectionValue);
+    const collectionState = parseCollectionState(collectionValue, shouldMigrateAutoOwned);
 
     if (Object.keys(collectionState).length > 0) {
       nextState[seriesId] = collectionState;
@@ -604,7 +618,7 @@ function parseSeriesCollectionState(value: unknown): SeriesCollectionState {
   return nextState;
 }
 
-function parseCollectionState(value: unknown): CollectionState {
+function parseCollectionState(value: unknown, shouldMigrateAutoOwned: boolean): CollectionState {
   if (!isRecord(value)) {
     return {};
   }
@@ -636,12 +650,12 @@ function parseCollectionState(value: unknown): CollectionState {
     const duplicateCount = readStatusCount(statusValue.duplicateCount ?? statusValue.duplicate);
     const damagedCount = readStatusCount(statusValue.damagedCount ?? statusValue.damaged);
     const nextStatus = {
-      owned: statusValue.owned === true || duplicateCount > 0 || damagedCount > 0,
+      owned: normalizeOwnedStatus(statusValue.owned === true, duplicateCount, damagedCount, shouldMigrateAutoOwned),
       duplicateCount,
       damagedCount
     };
 
-    if (nextStatus.owned) {
+    if (hasAnyStatus(nextStatus)) {
       nextState[stickerOrder] = nextStatus;
     }
   }
@@ -655,6 +669,19 @@ function readStatusCount(value: unknown): number {
   }
 
   return value === true ? 1 : 0;
+}
+
+function normalizeOwnedStatus(
+  storedOwned: boolean,
+  duplicateCount: number,
+  damagedCount: number,
+  shouldMigrateAutoOwned: boolean
+): boolean {
+  if (!shouldMigrateAutoOwned) {
+    return storedOwned;
+  }
+
+  return storedOwned && !(damagedCount > 0 && duplicateCount === 0);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -17,6 +17,7 @@ export type StickerSeries = {
   readonly title: string;
   readonly shortTitle: string;
   readonly total: number;
+  readonly releaseDate: string;
   readonly verification: StickerSeriesVerification;
   readonly note: string;
   readonly stickers: Sticker[];
@@ -28,6 +29,7 @@ const makeArtworkUrl = (dexNo: number): string =>
   `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${dexNo}.png`;
 
 const seriesWithStickerImages = new Set([
+  "anniversary-30",
   "kanto-2022",
   "johto-2022",
   "halloween-2022",
@@ -37,7 +39,11 @@ const seriesWithStickerImages = new Set([
   "new-season-1-2024",
   "new-season-2-2024",
   "mega-2024",
+  "new-season-3-2024",
   "pixel-art-2024",
+  "pokepeace-2025",
+  "new-season-4-2025",
+  "new-season-5-2026",
 ]);
 
 const makeStickerImageUrl = (seriesId: string | undefined, order: number, dexNo: number, name: string): string => {
@@ -173,7 +179,7 @@ const anniversary30Stickers: Sticker[] = makeStickerList([
   [148, "신뇽"],
   [149, "망나뇽"],
   [150, "뮤츠"],
-]);
+], "anniversary-30");
 
 const kanto2022Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -1000,13 +1006,13 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [175, "토게피"],
   [176, "토게틱"],
   [183, "마릴"],
-  [134, "샤미드"],
+  [184, "마릴리"],
   [190, "에이팜"],
-  [194, "우파"],
+  [194, "팔데아 우파"],
   [196, "에브이"],
   [197, "블래키"],
   [199, "야도킹"],
-  [207, "글라이거"],
+  [202, "마자용"],
   [208, "강철톤"],
   [212, "핫삼"],
   [214, "헤라크로스"],
@@ -1030,7 +1036,7 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [399, "비버니"],
   [400, "비버통"],
   [420, "체리버"],
-  [421, "체리꼬"],
+  [421, "체리꼬(포지폼)"],
   [443, "딥상어동"],
   [444, "한바이트"],
   [445, "한카리아스"],
@@ -1048,7 +1054,7 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [583, "바닐리치"],
   [584, "배바닐라"],
   [622, "골비람"],
-  [621, "크리만"],
+  [623, "골루그"],
   [650, "도치마론"],
   [651, "도치보구"],
   [652, "브리가론"],
@@ -1059,10 +1065,10 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [657, "개굴반장"],
   [658, "개굴닌자"],
   [659, "파르빗"],
-  [990, "무쇠바퀴"],
+  [660, "파르토"],
   [661, "화살꼬빈"],
   [662, "불화살빈"],
-  [65, "후딘"],
+  [663, "파이어로"],
   [667, "레오꼬"],
   [668, "화염레오"],
   [668, "화염레오"],
@@ -1103,17 +1109,17 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [25, "피카츄"],
   [850, "태우지네"],
   [851, "다태우지네"],
-  [86, "쥬쥬"],
-  [7, "꼬부기"],
-  [7, "꼬부기"],
-  [691, "드래캄"],
+  [863, "나이킹"],
+  [906, "나오하"],
+  [907, "나로테"],
+  [908, "마스카나"],
   [909, "뜨아거"],
   [910, "악뜨거"],
   [911, "라우드본"],
   [912, "꾸왁스"],
   [913, "아꾸왁"],
   [914, "웨이니발"],
-  [3, "이상해꽃"],
+  [980, "토오"],
   [930, "올리르바"],
   [146, "파이어"],
   [131, "라프라스"],
@@ -1125,11 +1131,11 @@ const newSeason3Stickers: Sticker[] = makeStickerList([
   [639, "테라키온"],
   [640, "비리디온"],
   [647, "케르디오"],
-  [8, "어니부기"],
+  [888, "자시안(검왕)"],
   [889, "자마젠타(방패왕)"],
-  [89, "질뻐기"],
+  [893, "자루도"],
   [384, "검은 레쿠쟈"],
-]);
+], "new-season-3-2024");
 
 const pixelArt2024Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -1400,7 +1406,7 @@ const pokepeace2025Stickers: Sticker[] = makeStickerList([
   [924, "두리쥐"],
   [924, "두리쥐"],
   [924, "두리쥐"],
-]);
+], "pokepeace-2025");
 
 const newSeason4Stickers: Sticker[] = makeStickerList([
   [19, "알로라 꼬렛"],
@@ -1546,7 +1552,7 @@ const newSeason4Stickers: Sticker[] = makeStickerList([
   [794, "매시붕"],
   [795, "페로코체"],
   [796, "전수목"],
-  [707, "클레피"],
+  [797, "철화구야"],
   [798, "종이신도"],
   [799, "악식킹"],
   [800, "네크로즈마"],
@@ -1571,7 +1577,7 @@ const newSeason4Stickers: Sticker[] = makeStickerList([
   [25, "피카츄"],
   [25, "피카츄"],
   [25, "피카츄"],
-]);
+], "new-season-4-2025");
 
 const newSeason5Stickers: Sticker[] = makeStickerList([
   [1, "이상해씨"],
@@ -1608,11 +1614,11 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [94, "거다이맥스 팬텀"],
   [129, "잉어킹"],
   [131, "라프라스"],
-  [131, "라프라스"],
+  [131, "거다이맥스 라프라스"],
   [133, "이브이"],
   [133, "거다이맥스 이브이"],
   [143, "잠만보"],
-  [143, "잠만보"],
+  [143, "거다이맥스 잠만보"],
   [144, "프리져"],
   [145, "썬더"],
   [146, "파이어"],
@@ -1624,7 +1630,7 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [175, "토게피"],
   [181, "전룡"],
   [184, "마릴리"],
-  [194, "우파"],
+  [194, "팔데아 우파"],
   [195, "누오"],
   [201, "안농"],
   [202, "마자용"],
@@ -1652,7 +1658,7 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [382, "가이오가"],
   [383, "그란돈"],
   [384, "레쿠쟈"],
-  [386, "테오키스"],
+  [386, "테오키스(어택폼)"],
   [387, "모부기"],
   [390, "불꽃숭이"],
   [392, "초염몽"],
@@ -1662,18 +1668,18 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [440, "핑복"],
   [445, "한카리아스"],
   [448, "루카리오"],
-  [448, "루카리오"],
+  [448, "노란 루카리오"],
   [448, "메가루카리오"],
   [448, "메가루카리오"],
   [479, "로토무"],
   [483, "디아루가"],
   [484, "펄기아"],
   [486, "레지기가스"],
-  [487, "기라티나"],
+  [487, "기라티나(어나더폼)"],
   [488, "크레세리아"],
   [490, "마나피"],
   [491, "다크라이"],
-  [492, "쉐이미"],
+  [492, "쉐이미(랜드폼)"],
   [494, "비크티니"],
   [495, "주리비얀"],
   [498, "뚜꾸리"],
@@ -1693,7 +1699,7 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [700, "님피아"],
   [716, "제르네아스"],
   [717, "이벨타르"],
-  [7, "꼬부기"],
+  [718, "지가르데(퍼펙트폼)"],
   [720, "후파"],
   [722, "나몰빼미"],
   [725, "냐오불"],
@@ -1709,22 +1715,22 @@ const newSeason5Stickers: Sticker[] = makeStickerList([
   [813, "염버니"],
   [816, "울머기"],
   [835, "멍파치"],
-  [855, "포트데스"],
+  [865, "창파나이트"],
   [869, "마휘핑"],
-  [38, "나인테일"],
-  [889, "자마젠타"],
-  [89, "질뻐기"],
-  [892, "우라오스"],
-  [892, "우라오스"],
-  [905, "러브로스"],
+  [888, "자시안(검왕)"],
+  [889, "자마젠타(방패왕)"],
+  [890, "무한다이노"],
+  [892, "우라오스(일격의 태세)"],
+  [892, "우라오스(연격의 태세)"],
+  [906, "나오하"],
   [908, "마스카나"],
-  [606, "벰크"],
+  [909, "뜨아거"],
   [912, "꾸왁스"],
   [936, "카디나르마"],
   [937, "파라블레이즈"],
   [980, "토오"],
-  [1024, "테라파고스"],
-]);
+  [1024, "테라파고스(테라스탈폼)"],
+], "new-season-5-2026");
 
 export const DEFAULT_SERIES_ID = "anniversary-30";
 
@@ -1734,8 +1740,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2026 Since 1996 30주년",
     shortTitle: "30주년",
     total: 100,
+    releaseDate: "2026-05-07",
     verification: "official",
-    note: "현재 체크리스트에 입력된 100종 시리즈입니다.",
+    note: "포켓몬 30주년을 기념한 오리지널 아트웍 스페셜 라인업입니다. 1세대 중심의 밝은 아트웍과 기념 로고가 들어간 100종 구성입니다.",
     stickers: anniversary30Stickers,
   },
   {
@@ -1743,8 +1750,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2022 관동",
     shortTitle: "관동",
     total: 159,
+    releaseDate: "2022-02-24",
     verification: "checked",
-    note: "1세대 151종과 일러스트 변경 8종 라인업입니다.",
+    note: "돌아온 포켓몬빵 1차 띠부씰 라인업입니다. 1세대 관동 151종에 일러스트 차이 8종을 더한 기본 수집 시리즈입니다.",
     stickers: kanto2022Stickers,
   },
   {
@@ -1752,8 +1760,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2022 성도",
     shortTitle: "성도",
     total: 116,
+    releaseDate: "2022-07-01",
     verification: "checked",
-    note: "2세대 109종과 일러스트 변경 7종 라인업입니다.",
+    note: "2세대 성도 포켓몬 중심의 추가 라인업입니다. 성도 109종과 일러스트 차이 7종을 함께 체크할 수 있습니다.",
     stickers: johto2022Stickers,
   },
   {
@@ -1761,8 +1770,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2022 할로윈 야광",
     shortTitle: "할로윈",
     total: 27,
+    releaseDate: "2022-10-01",
     verification: "checked",
-    note: "야광 콘셉트 한정 라인업입니다. 단체컷은 스페셜로 표시했습니다.",
+    note: "할로윈 시즌에 맞춘 야광 콘셉트 한정 시리즈입니다. 고스트 분위기의 포켓몬과 단체컷 스페셜 씰을 포함합니다.",
     stickers: halloween2022Stickers,
   },
   {
@@ -1770,8 +1780,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2022/2023 윈터 왕띠부씰",
     shortTitle: "윈터",
     total: 30,
+    releaseDate: "2022-12-01",
     verification: "checked",
-    note: "왕띠부씰 계열입니다. 단체컷은 스페셜로 표시했습니다.",
+    note: "겨울 시즌에 나온 왕띠부씰 계열입니다. 일반 띠부씰보다 큰 사이즈로, 단체컷 스페셜 씰을 함께 기록합니다.",
     stickers: winter2022Stickers,
   },
   {
@@ -1779,8 +1790,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2023 러블리",
     shortTitle: "러블리",
     total: 30,
+    releaseDate: "2023-02-01",
     verification: "checked",
-    note: "러블리 콘셉트 한정 라인업입니다.",
+    note: "러블리 콘셉트로 구성된 한정 라인업입니다. 귀여운 분위기의 포켓몬과 꾸미기용 디자인을 중심으로 모아둔 시리즈입니다.",
     stickers: lovely2023Stickers,
   },
   {
@@ -1788,8 +1800,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2023 NEW 55종",
     shortTitle: "2023 NEW",
     total: 55,
+    releaseDate: "2023-05-01",
     verification: "checked",
-    note: "3세대, 4세대, 9세대 일부가 포함된 추가 라인업입니다.",
+    note: "2023년 추가된 55종 라인업입니다. 3세대, 4세대, 9세대 일부와 아르세우스 계열을 포함한 확장 구성입니다.",
     stickers: paldeaArceus2023Stickers,
   },
   {
@@ -1797,8 +1810,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2023 NEW 시즌1",
     shortTitle: "NEW 1",
     total: 139,
+    releaseDate: "2023-08-01",
     verification: "checked",
-    note: "2023년 5월 55종 이후 개편된 NEW 시즌1 라인업입니다.",
+    note: "2023년 55종 이후 개편된 NEW 시즌1 라인업입니다. 기존 세대 재수록과 신규 도안을 함께 정리한 시즌형 컬렉션입니다.",
     stickers: newSeason1Stickers,
   },
   {
@@ -1806,8 +1820,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2024 NEW 시즌2",
     shortTitle: "NEW 2",
     total: 163,
+    releaseDate: "2024-02-01",
     verification: "checked",
-    note: "1세대 재수록과 꼬부기 소방대 3종을 포함한 라인업입니다.",
+    note: "2024년 NEW 시즌2 라인업입니다. 1세대 재수록 도안과 꼬부기 소방대 3종을 포함한 163종 구성입니다.",
     stickers: newSeason2Stickers,
   },
   {
@@ -1815,8 +1830,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2024 메가진화",
     shortTitle: "메가진화",
     total: 53,
+    releaseDate: "2024-05-01",
     verification: "checked",
-    note: "가로형 27종, 세로형 26종 BIG 사이즈 라인업입니다.",
+    note: "메가진화 포켓몬을 중심으로 한 BIG 사이즈 시리즈입니다. 가로형 27종과 세로형 26종을 따로 구분해 모을 수 있습니다.",
     stickers: mega2024Stickers,
   },
   {
@@ -1824,8 +1840,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2024 NEW 시즌3",
     shortTitle: "NEW 3",
     total: 154,
+    releaseDate: "2024-11-27",
     verification: "checked",
-    note: "2024년 11월 출시 NEW 시즌3 라인업입니다.",
+    note: "2024년 11월 출시된 NEW 시즌3 라인업입니다. 여러 세대의 일반 도안과 특별 형태 도안을 함께 포함한 154종 구성입니다.",
     stickers: newSeason3Stickers,
   },
   {
@@ -1833,8 +1850,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2024 픽셀아트",
     shortTitle: "픽셀",
     total: 151,
+    releaseDate: "2024-12-01",
     verification: "checked",
-    note: "1세대 151종 픽셀아트 스타일 라인업입니다.",
+    note: "1세대 151종을 픽셀아트 스타일로 다시 구성한 시리즈입니다. 기존 도감 순서와 다른 복고풍 도안을 체크할 수 있습니다.",
     stickers: pixelArt2024Stickers,
   },
   {
@@ -1842,8 +1860,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2025 포켓피스",
     shortTitle: "포켓피스",
     total: 114,
+    releaseDate: "2025-02-21",
     verification: "checked",
-    note: "한정판 포켓몬 포켓피스 라인업입니다.",
+    note: "포켓몬 포켓피스 콘셉트의 한정판 라인업입니다. 피카츄, 팽도리, 염버니, 나몰빼미 등 부드러운 일러스트 중심입니다.",
     stickers: pokepeace2025Stickers,
   },
   {
@@ -1851,8 +1870,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2025 NEW 4세대",
     shortTitle: "NEW 4",
     total: 168,
+    releaseDate: "2025-07-31",
     verification: "checked",
-    note: "4세대와 알로라 계열 중심의 NEW 시즌4 라인업입니다.",
+    note: "2025년 NEW 시즌4 라인업입니다. 4세대 포켓몬과 알로라 리전폼을 중심으로 구성된 168종 시리즈입니다.",
     stickers: newSeason4Stickers,
   },
   {
@@ -1860,8 +1880,9 @@ export const stickerSeries: StickerSeries[] = [
     title: "2026 NEW 시즌5",
     shortTitle: "NEW 5",
     total: 150,
+    releaseDate: "2026-03-30",
     verification: "checked",
-    note: "30주년 기념 NEW 시즌5 라인업입니다.",
+    note: "포켓몬 30주년 기념 NEW 시즌5 라인업입니다. 기념 로고 도안과 여러 세대 인기 포켓몬을 섞은 150종 구성입니다.",
     stickers: newSeason5Stickers,
   },
 ];
